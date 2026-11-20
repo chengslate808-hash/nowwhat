@@ -39,7 +39,7 @@ jobs:
         with: { python-version: "3.12", cache: pip }
       - uses: actions/setup-node@v4
         if: steps.health.outputs.broken == 'true'
-        with: { node-version: "20" }
+        with: { node-version: "22" }
       - if: steps.health.outputs.broken == 'true'
         run: pip install -r requirements.txt && npm install --no-audit --no-fund && cp live.json public/data.json
 
