@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>nowwhat — the world, right now</title>
-<meta name="description" content="What is happening in the world right now: top stories, global markets, top apps and trends on one page, updated hourly.">
+<meta name="description" content="What is happening in the world right now: top stories, global markets, top apps and trends on one page. In English, 中文, Español, हिन्दी and العربية.">
 <meta property="og:title" content="nowwhat — the world, right now">
 <meta property="og:description" content="The whole world on one page, updated every hour.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22%3E%3Crect width=%22100%22 height=%22100%22 rx=%2220%22 fill=%22%230e1014%22/%3E%3Ctext x=%2250%22 y=%2272%22 font-size=%2266%22 font-weight=%22900%22 text-anchor=%22middle%22 fill=%22%23ffd23f%22 font-family=%22system-ui%22%3E%3F%3C/text%3E%3C/svg%3E">
@@ -14,8 +14,11 @@
 body{background:var(--bg);color:var(--tx);font:14px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;padding:16px;max-width:1440px;margin:auto}
 a{color:inherit;text-decoration:none}a:hover{text-decoration:underline}
 header{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+.langs{margin-inline-start:auto;display:flex;gap:2px;flex-wrap:wrap}
+.langs button{background:none;border:1px solid transparent;border-radius:6px;color:var(--mut);font:inherit;font-size:13px;padding:3px 8px;cursor:pointer}
+.langs button:hover{color:var(--tx)}.langs button.on{color:var(--tx);border-color:var(--line);background:var(--card)}
 .logo{font-weight:800;font-size:26px;letter-spacing:-1px}.logo b{color:var(--acc)}
-#hero{background:var(--card);border:1px solid var(--line);border-left:4px solid var(--acc);border-radius:8px;padding:16px 18px;margin-bottom:12px}
+#hero{background:var(--card);border:1px solid var(--line);border-inline-start:4px solid var(--acc);border-radius:8px;padding:16px 18px;margin-bottom:12px}
 #hero p{font-size:clamp(17px,2.1vw,22px);line-height:1.35;font-weight:650;letter-spacing:-.01em;text-wrap:pretty}
 #hero .mut{display:block;margin-top:8px;font-size:11px;text-transform:uppercase;letter-spacing:.08em}
 .ad{display:none;margin-bottom:12px;text-align:center;min-height:90px}.ad.on{display:block}
@@ -44,13 +47,13 @@ ol.news li::before{content:counter(n);font-weight:800;color:var(--acc);font-size
 .list a{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .list img{width:28px;height:28px;border-radius:7px;flex:none;background:var(--line)}
 .pl{font-size:10px;padding:1px 5px;border-radius:4px;border:1px solid var(--line);color:var(--mut);flex:none}.pl:hover{color:var(--tx);text-decoration:none}
-.r{margin-left:auto;color:var(--mut);font-size:12px;white-space:nowrap;max-width:40%;overflow:hidden;text-overflow:ellipsis}
-.tabs button{background:none;border:0;color:var(--mut);font:inherit;cursor:pointer;text-transform:uppercase;margin-left:6px}
+.r{margin-inline-start:auto;color:var(--mut);font-size:12px;white-space:nowrap;max-width:40%;overflow:hidden;text-overflow:ellipsis}
+.tabs button{background:none;border:0;color:var(--mut);font:inherit;cursor:pointer;text-transform:uppercase;margin-inline-start:6px}
 .tabs button.on{color:var(--tx);text-decoration:underline}
 .up{color:var(--up)}.dn{color:var(--dn)}
 .bar{height:3px;background:var(--line);border-radius:2px;margin-top:4px}.bar i{display:block;height:100%;background:var(--acc);border-radius:2px}
 footer{margin-top:16px}
-.dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--up);margin-right:5px;vertical-align:1px;animation:pulse 2s infinite}
+.dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--up);margin-inline-end:5px;vertical-align:1px;animation:pulse 2s infinite}
 @keyframes pulse{50%{opacity:.25}}
 .news li.new a{animation:flash 6s ease-out}@keyframes flash{0%{background:rgba(255,210,63,.35)}100%{background:transparent}}
 @media(prefers-reduced-motion:reduce){.dot,.news li.new a{animation:none}}
@@ -58,39 +61,81 @@ footer{margin-top:16px}
 </style>
 </head>
 <body>
-<header><div class="logo">now<b>what?</b></div><div class="mut"><span class="dot" id="dot" hidden></span>the world, right now · updated <span id="upd">…</span></div></header>
-<section id="hero" hidden><p id="sum"></p><span class="mut">The day in 2 sentences · AI-written from the stories below · <span id="sumat"></span></span></section>
+<header><div class="logo" dir="ltr">now<b>what?</b></div><div class="mut"><span class="dot" id="dot" hidden></span><span data-t="tagline">the world, right now</span> · <span data-t="updated">updated</span> <span id="upd">…</span></div><nav class="langs" id="langs" aria-label="Language"></nav></header>
+<section id="hero" hidden><p id="sum"></p><span class="mut"><span data-t="hero">The day in 2 sentences · AI-written from the stories below</span> · <span id="sumat"></span></span></section>
 <tv-ticker-tape id="tape" theme="dark" transparent symbols="FOREXCOM:SPXUSD,FOREXCOM:NSXUSD,FOREXCOM:DJI,OANDA:JP225USD,OANDA:DE30EUR,OANDA:HK33HKD,OANDA:CN50USD,TVC:US10Y,OANDA:XAUUSD,TVC:USOIL,BITSTAMP:BTCUSD,BITSTAMP:ETHUSD"></tv-ticker-tape>
-<div class="ad" id="ad-top"><small>Advertisement</small></div>
+<div class="ad" id="ad-top"><small data-t="ad">Advertisement</small></div>
 <div class="grid">
-  <section class="card s4"><h2>Top 5 stories <span>by cross-outlet coverage</span></h2><ol class="news" id="news"></ol></section>
-  <section class="card s8"><h2>Market map <span class="tabs" id="maptabs"></span></h2><div id="map"></div><div class="mnote">Size = market cap · color = % change today · data by TradingView (delayed) · Japan: Nikkei 225 in the ticker above (no free Japan map)</div></section>
-  <div class="ad ad-mid" id="ad-mid"><small>Advertisement</small></div>
-  <section class="card s4"><h2>Top apps · iPhone + Android <span class="tabs" id="apptabs"></span></h2><ul class="list" id="apps"></ul></section>
-  <section class="card s4"><h2>Most-read on Wikipedia <span>yesterday</span></h2><ul class="list" id="wiki"></ul></section>
-  <section class="card s4"><h2>What the world is betting on</h2><ul class="list" id="bets"></ul></section>
+  <section class="card s4"><h2><span data-t="top5">Top 5 stories</span> <span data-t="bycov">by cross-outlet coverage</span></h2><ol class="news" id="news"></ol></section>
+  <section class="card s8"><h2><span data-t="map">Market map</span> <span class="tabs" id="maptabs"></span></h2><div id="map"></div><div class="mnote" data-t="mnote">Size = market cap · color = % change today · data by TradingView (delayed) · Japan: Nikkei 225 in the ticker above</div></section>
+  <div class="ad ad-mid" id="ad-mid"><small data-t="ad">Advertisement</small></div>
+  <section class="card s4"><h2><span data-t="apps">Top apps · iPhone + Android</span> <span class="tabs" id="apptabs"></span></h2><ul class="list" id="apps"></ul></section>
+  <section class="card s4"><h2><span data-t="wiki">Most-read on Wikipedia</span> <span data-t="yesterday">yesterday</span></h2><ul class="list" id="wiki"></ul></section>
+  <section class="card s4"><h2><span data-t="bets">What the world is betting on</span></h2><ul class="list" id="bets"></ul></section>
 </div>
-<footer class="mut">Headlines link to their publishers (BBC, Al Jazeera, NYT, Guardian, NPR, DW, CNBC and others) · market widgets by TradingView, app charts (Apple &amp; Google, US), Wikimedia, prediction markets · news, odds &amp; crypto refresh every 30 seconds, app charts hourly · <a href="privacy.html">Privacy</a></footer>
+<footer class="mut"><span data-t="footer">Headlines link to their publishers · market widgets by TradingView · app charts (Apple &amp; Google, US), Wikipedia, prediction markets · news and odds refresh every 30 seconds, app charts hourly · non-English versions translated by AI</span> · <a href="privacy.html" data-t="privacy">Privacy</a></footer>
 <script src="config.js"></script>
-<script type="module" src="https://widgets.tradingview-widget.com/w/en/tv-ticker-tape.js"></script>
-<script type="module" src="https://widgets.tradingview-widget.com/w/en/tv-heatmap.js"></script>
 <script>
 const $=id=>document.getElementById(id),esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const sign=v=>(v>=0?'+':'')+(+v).toFixed(2)+'%',pct=v=>`<span class="${v>=0?'up':'dn'}">${sign(v)}</span>`;
-const link=(u,t,st='')=>`<a href="${esc(u)}" target="_blank" rel="noopener"${st}>${esc(t)}</a>`;
+const link=(u,t,st='')=>`<a href="${esc(u)}" target="_blank" rel="noopener" dir="auto"${st}>${esc(t)}</a>`;
 let D,appTab;
+
+// ---------- languages: the 5 most-spoken (Ethnologue 2025) ----------
+const LANGS={en:'English',zh:'中文',es:'Español',hi:'हिन्दी',ar:'العربية'};
+const LOCALE={en:'en-US',zh:'zh-CN',es:'es',hi:'hi-IN',ar:'ar'};
+const TVLOC={en:'en',zh:'zh_CN',es:'es',hi:'en',ar:'ar_AE'}; // TradingView has no Hindi widgets
+const T={
+ tagline:{en:'the world, right now',zh:'世界，此刻',es:'el mundo, ahora mismo',hi:'दुनिया, अभी',ar:'العالم، الآن'},
+ updated:{en:'updated',zh:'更新于',es:'actualizado',hi:'अपडेट',ar:'تم التحديث'},
+ hero:{en:'The day in 2 sentences · AI-written from the stories below',zh:'两句话看今天 · 由AI根据下方新闻撰写',es:'El día en 2 frases · escrito por IA a partir de las noticias de abajo',hi:'दो वाक्यों में आज का दिन · नीचे की खबरों से AI द्वारा लिखा गया',ar:'اليوم في جملتين · كتبه الذكاء الاصطناعي من الأخبار أدناه'},
+ ad:{en:'Advertisement',zh:'广告',es:'Publicidad',hi:'विज्ञापन',ar:'إعلان'},
+ top5:{en:'Top 5 stories',zh:'五大新闻',es:'5 noticias principales',hi:'शीर्ष 5 खबरें',ar:'أهم 5 أخبار'},
+ bycov:{en:'by cross-outlet coverage',zh:'按媒体报道数量排序',es:'según cobertura entre medios',hi:'मीडिया कवरेज के अनुसार',ar:'حسب التغطية الإعلامية'},
+ also:{en:'also',zh:'另见',es:'también',hi:'इसके अलावा',ar:'أيضًا'},
+ map:{en:'Market map',zh:'市场热力图',es:'Mapa del mercado',hi:'बाज़ार मानचित्र',ar:'خريطة السوق'},
+ US:{en:'US',zh:'美国',es:'EE. UU.',hi:'अमेरिका',ar:'أمريكا'},
+ 'China/HK':{en:'China/HK',zh:'中国/香港',es:'China/HK',hi:'चीन/हांगकांग',ar:'الصين/هونغ كونغ'},
+ Germany:{en:'Germany',zh:'德国',es:'Alemania',hi:'जर्मनी',ar:'ألمانيا'},
+ mnote:{en:'Size = market cap · color = % change today · data by TradingView (delayed) · Japan: Nikkei 225 in the ticker above',zh:'面积 = 市值 · 颜色 = 今日涨跌幅 · 数据来自TradingView（延迟）· 日本：见上方行情条中的日经225',es:'Tamaño = capitalización · color = % de cambio hoy · datos de TradingView (con retraso) · Japón: Nikkei 225 en la cinta superior',hi:'आकार = बाज़ार पूंजीकरण · रंग = आज का % बदलाव · डेटा TradingView से (विलंबित) · जापान: ऊपर टिकर में निक्केई 225',ar:'الحجم = القيمة السوقية · اللون = نسبة التغير اليوم · البيانات من TradingView (متأخرة) · اليابان: مؤشر نيكي 225 في الشريط أعلاه'},
+ apps:{en:'Top apps · iPhone + Android',zh:'热门应用 · iPhone + Android',es:'Apps más populares · iPhone + Android',hi:'शीर्ष ऐप्स · iPhone + Android',ar:'أشهر التطبيقات · iPhone + Android'},
+ grossing:{en:'grossing',zh:'畅销',es:'más ingresos',hi:'सबसे ज़्यादा कमाई',ar:'الأعلى ربحًا'},
+ free:{en:'free',zh:'免费',es:'gratis',hi:'मुफ़्त',ar:'مجانية'},
+ wiki:{en:'Most-read on Wikipedia',zh:'维基百科阅读最多',es:'Lo más leído en Wikipedia',hi:'विकिपीडिया पर सबसे ज़्यादा पढ़ा गया',ar:'الأكثر قراءة على ويكيبيديا'},
+ yesterday:{en:'yesterday',zh:'昨天',es:'ayer',hi:'कल',ar:'أمس'},
+ bets:{en:'What the world is betting on',zh:'全球在押注什么',es:'En qué apuesta el mundo',hi:'दुनिया किस पर दांव लगा रही है',ar:'على ماذا يراهن العالم'},
+ Yes:{en:'Yes',zh:'是',es:'Sí',hi:'हाँ',ar:'نعم'},
+ footer:{en:'Headlines link to their publishers · market widgets by TradingView · app charts (Apple & Google, US), Wikipedia, prediction markets · news and odds refresh every 30 seconds, app charts hourly · non-English versions translated by AI',
+  zh:'标题链接至原始媒体 · 市场组件由TradingView提供 · 应用榜单（Apple和Google，美国）、维基百科、预测市场 · 新闻和赔率每30秒更新，应用榜单每小时更新 · 非英文版本由AI翻译',
+  es:'Los titulares enlazan a sus medios · widgets de mercado de TradingView · rankings de apps (Apple y Google, EE. UU.), Wikipedia, mercados de predicción · noticias y probabilidades cada 30 segundos, apps cada hora · versiones en otros idiomas traducidas por IA',
+  hi:'सुर्खियाँ मूल प्रकाशकों से जुड़ी हैं · बाज़ार विजेट TradingView द्वारा · ऐप चार्ट (Apple और Google, अमेरिका), विकिपीडिया, प्रेडिक्शन मार्केट · खबरें और दांव हर 30 सेकंड में, ऐप चार्ट हर घंटे अपडेट · गैर-अंग्रेज़ी संस्करण AI द्वारा अनूदित',
+  ar:'العناوين ترتبط بناشريها الأصليين · أدوات السوق من TradingView · تصنيفات التطبيقات (Apple وGoogle، الولايات المتحدة)، ويكيبيديا، أسواق التوقعات · الأخبار والاحتمالات تتحدث كل 30 ثانية والتطبيقات كل ساعة · النسخ غير الإنجليزية مترجمة بالذكاء الاصطناعي'},
+ privacy:{en:'Privacy',zh:'隐私',es:'Privacidad',hi:'गोपनीयता',ar:'الخصوصية'},
+ na:{en:'data unavailable',zh:'数据暂不可用',es:'datos no disponibles',hi:'डेटा उपलब्ध नहीं',ar:'البيانات غير متاحة'},
+};
+const AGO={en:[s=>s+'s ago',m=>m+' min ago'],zh:[s=>s+'秒前',m=>m+'分钟前'],es:[s=>'hace '+s+' s',m=>'hace '+m+' min'],hi:[s=>s+' सेकंड पहले',m=>m+' मिनट पहले'],ar:[s=>'قبل '+s+' ث',m=>'قبل '+m+' د']};
+let lang='en';
+try{const q=new URLSearchParams(location.search).get('lang'),st=localStorage.getItem('nw-lang'),nav=(navigator.languages||[]).map(x=>x.slice(0,2)).find(x=>LANGS[x]);
+  lang=[q,st,nav].find(x=>x&&LANGS[x])||'en'}catch(e){}
+const t=k=>(T[k]&&(T[k][lang]||T[k].en))||k;
+const tr=(obj,en)=>(lang!=='en'&&obj&&obj[lang])||en; // translated text if we have it, else original
+function setLang(l){try{localStorage.setItem('nw-lang',l)}catch(e){}const u=new URL(location.href);u.searchParams.set('lang',l);location.href=u} // reload so the TradingView widgets switch too
+function applyLang(){document.documentElement.lang=lang;document.documentElement.dir=lang==='ar'?'rtl':'ltr';
+  document.querySelectorAll('[data-t]').forEach(el=>el.textContent=t(el.dataset.t));
+  $('langs').innerHTML=Object.entries(LANGS).map(([k,n])=>`<button class="${k===lang?'on':''}" lang="${k}" onclick="setLang('${k}')">${n}</button>`).join('');
+  for(const w of ['tv-ticker-tape','tv-heatmap']){const s=document.createElement('script');s.type='module';s.src=`https://widgets.tradingview-widget.com/w/${TVLOC[lang]}/${w}.js`;document.head.appendChild(s)}}
 
 // Market map: TradingView's free heatmap widget (their data, their branding). One map at a time keeps the page light.
 const MAPS={US:'SPX500','China/HK':'HSCEI',Germany:'DAX'};let mapTab='US';
-function renderMap(){$('maptabs').innerHTML=Object.keys(MAPS).map(k=>`<button class="${k===mapTab?'on':''}" onclick="mapTab='${k}';renderMap()">${k}</button>`).join('');
+function renderMap(){$('maptabs').innerHTML=Object.keys(MAPS).map(k=>`<button class="${k===mapTab?'on':''}" onclick="mapTab='${k}';renderMap()">${t(k)}</button>`).join('');
   $('map').innerHTML=`<tv-heatmap heatmap-type="stock" data-source="${MAPS[mapTab]}" grouping="sector" block-size="market_cap_basic" block-color="change" theme="dark" transparent></tv-heatmap>`}
 
 function renderApps(){const a=D.apps||{};if(!a[appTab])appTab=Object.keys(a)[0];
-  $('apptabs').innerHTML=Object.keys(a).map(k=>`<button class="${k===appTab?'on':''}" onclick="appTab='${k}';renderApps()">${k}</button>`).join('');
+  $('apptabs').innerHTML=Object.keys(a).map(k=>`<button class="${k===appTab?'on':''}" onclick="appTab='${k}';renderApps()">${t(k)}</button>`).join('');
   $('apps').innerHTML=(a[appTab]||[]).slice(0,10).map((x,i)=>`<li><span class="mut">${i+1}</span><img src="${esc(x.icon)}" alt="" loading="lazy" onerror="this.style.visibility='hidden'">${link(x.on.ios||x.on.android,x.name)}<span class="r">${x.on.ios?link(x.on.ios,'iOS',' class="pl"'):''} ${x.on.android?link(x.on.android,'Android',' class="pl"'):''}</span></li>`).join('')}
 
-function renderSummary(s){if(!s?.text)return;$('hero').hidden=false;$('sum').textContent=s.text;
-  $('sumat').textContent='updated '+new Date(s.at).toLocaleTimeString([],{hour:'numeric',minute:'2-digit'})}
+function renderSummary(s){if(!s?.text)return;$('hero').hidden=false;$('sum').textContent=tr(s.tr,s.text);
+  $('sumat').textContent=t('updated')+' '+new Date(s.at).toLocaleTimeString(LOCALE[lang],{hour:'numeric',minute:'2-digit'})}
 
 // ads: nothing loads until config.js has an AdSense client ID + slot IDs
 function loadAds(){const c=window.NW||{};if(!c.adsenseClient)return;const s=document.createElement('script');s.async=true;s.crossOrigin='anonymous';
@@ -107,24 +152,24 @@ function view(){const lv=fresh(L,18e4)?L:{}; // live wins while it's under 3 min
   return{headlines:lv.headlines||S.headlines,bets:lv.bets||S.bets,summary:sum,updated:lv.updated||S.updated,live:!!lv.updated}}
 
 function tick(){const v=view();if(!v.updated)return;const sec=Math.max(0,Math.round((Date.now()-new Date(v.updated))/1e3));
-  $('upd').textContent=sec<60?sec+'s ago':sec<7200?Math.round(sec/60)+' min ago':new Date(v.updated).toLocaleString();$('dot').hidden=!v.live}
+  $('upd').textContent=sec<60?AGO[lang][0](sec):sec<7200?AGO[lang][1](Math.round(sec/60)):new Date(v.updated).toLocaleString(LOCALE[lang]);$('dot').hidden=!v.live}
 
 function renderLive(){const v=view();
   const hs=v.headlines||[];
-  $('news').innerHTML=hs.map(h=>`<li class="${seen&&!seen.has(h.url)?'new':''}"><div>${link(h.url,h.title)}<div class="mut">${esc(h.source)}${h.also.length?' · also '+h.also.map(esc).join(', '):''}</div></div></li>`).join('');
+  $('news').innerHTML=hs.map(h=>`<li class="${seen&&!seen.has(h.url)?'new':''}"><div>${link(h.url,tr(h.tr,h.title))}<div class="mut">${esc(h.source)}${h.also.length?' · '+t('also')+' '+h.also.map(esc).join(', '):''}</div></div></li>`).join('');
   seen=new Set(hs.map(h=>h.url));
-  $('bets').innerHTML=(v.bets||[]).map(b=>`<li>${link(b.url,b.q,' style="flex:1"')}<span class="r"><b style="color:var(--tx)">${b.yes}%</b> ${esc(b.outcome)}</span></li>`).join('');
+  $('bets').innerHTML=(v.bets||[]).map(b=>`<li>${link(b.url,b.q,' style="flex:1"')}<span class="r"><b style="color:var(--tx)">${b.yes}%</b> ${esc(b.outcome==='Yes'?t('Yes'):b.outcome)}</span></li>`).join('');
   renderSummary(v.summary);tick()}
 
 function renderStatic(){D=S;const tr=S.trending||[],mx=Math.max(1,...tr.map(w=>w.views));
   $('wiki').innerHTML=tr.map(w=>`<li><div style="flex:1;min-width:0">${link(w.url,w.title,' style="display:block"')}<div class="bar"><i style="width:${w.views/mx*100}%"></i></div></div><span class="r">${Math.round(w.views/1e3)}k</span></li>`).join('');
   renderApps()}
 
-async function loadStatic(){try{S=window.__DATA__||await(await fetch('data.json?'+Date.now())).json();renderStatic();renderLive()}catch(e){if(!S.updated)$('upd').textContent='data unavailable'}}
+async function loadStatic(){try{S=window.__DATA__||await(await fetch('data.json?'+Date.now())).json();renderStatic();renderLive()}catch(e){if(!S.updated)$('upd').textContent=t('na')}}
 async function loadLive(){if(document.hidden)return; // no requests from background tabs
   try{if(window.__LIVE__){L=window.__LIVE__;L.updated=new Date().toISOString()}else{const r=await fetch('/api/live',{cache:'no-store'});if(!r.ok)return;L=await r.json()}renderLive()}catch(e){}}
 
-loadStatic();loadLive();loadAds();
+applyLang();loadStatic();loadLive();loadAds();
 setInterval(loadLive,3e4);setInterval(loadStatic,3e5);setInterval(tick,1e3);
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)loadLive()});
 renderMap();
