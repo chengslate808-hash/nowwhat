@@ -298,7 +298,9 @@ def summary(data):
     h = hashlib.sha256(ctx.encode()).hexdigest()[:16]
     if prev and prev.get("hash") == h:  # nothing changed -> no tokens spent
         return prev
-    body = {"model": MODEL, "max_tokens": 1024, "system": SYSTEM,
+    body = {"model": MODEL, "max_tokens": 300, "system": SYSTEM,
+            "thinking": {"type": "disabled"}, "output_config": {"effort": "low"},  # no hidden reasoning tokens
+           
             "messages": [{"role": "user", "content": f"<data>\n{ctx}\n</data>"}]}
     try:
         r = get("https://api.anthropic.com/v1/messages", data=json.dumps(body).encode(), timeout=60,

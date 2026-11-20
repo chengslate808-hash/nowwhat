@@ -81,7 +81,7 @@ export class Live extends DurableObject {
   async refresh() {
     const old = (await this.ctx.storage.get("snap")) || {};
     const health = old._health || { _feeds: {} };
-    const snap = { updated: new Date().toISOString(), v: 3 };
+    const snap = { updated: new Date().toISOString(), v: 4 };
     const results = await Promise.allSettled([this.headlines(health), this.bets(), this.crypto()]);
     ["headlines", "bets", "crypto"].forEach((name, i) => {
       const r = results[i], h = health[name] || {};
@@ -182,7 +182,8 @@ export class Live extends DurableObject {
       signal: AbortSignal.timeout(30000),
       headers: { "x-api-key": key, "anthropic-version": "2023-06-01", "content-type": "application/json" },
       body: JSON.stringify({
-        model: MODEL, max_tokens: 1024,
+        model: MODEL, max_tokens: 300,
+        thinking: { type: "disabled" }, output_config: { effort: "low" }, // no hidden reasoning tokens
         system: "You write the headline for a world-news dashboard. Using ONLY the headlines inside <data>, write exactly 2 sentences, " +
           "45 words maximum in total, summing up the most important things happening in the world right now. Lead with the biggest " +
           "story (the [n] after a headline is how many outlets cover it). Neutral and factual: no opinions, no predictions, no " +
