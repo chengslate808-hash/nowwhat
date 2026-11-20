@@ -1,0 +1,37 @@
+name: hourly-update
+on:
+  schedule:
+    - cron: "7 * * * *"   # every hour at :07 (GitHub may run a few minutes late)
+  push:
+    branches: [main]     # code changes (e.g. a merged repair PR) go live right away
+  workflow_dispatch:      # "Run workflow" button
+permissions:
+  contents: read
+concurrency: update
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12", cache: pip }
+      - uses: actions/setup-node@v4
+        with: { node-version: "20" }
+      - run: pip install -r requirements.txt && npm install --no-audit --no-fund
+      - name: Fetch data + write AI summary
+        run: python update.py
+        env:
+          SITE_URL: ${{ vars.SITE_URL }}              # e.g. https://nowwhat.today (used to read last hour's data)
+          CONTACT_EMAIL: ${{ vars.CONTACT_EMAIL }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      - name: Publish to Cloudflare (site + 30-second live worker)
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: deploy
+          secrets: |
+            ANTHROPIC_API_KEY
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}

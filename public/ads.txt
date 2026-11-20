@@ -1,0 +1,3 @@
+# When AdSense approves the site, replace the line below with the exact line AdSense
+# shows you (Sites > ads.txt) and remove the leading "#". It looks like:
+# google.com, pub-0000000000000000, DIRECT, f08c47fec0942fa0

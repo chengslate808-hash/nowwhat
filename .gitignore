@@ -1,0 +1,6 @@
+public/data.json
+problems.md
+pr-body.md
+node_modules/
+__pycache__/
+.wrangler/

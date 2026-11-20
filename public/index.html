@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>nowwhat — the world, right now</title>
+<meta name="description" content="What is happening in the world right now: top stories, global markets, top apps and trends on one page, updated hourly.">
+<meta property="og:title" content="nowwhat — the world, right now">
+<meta property="og:description" content="The whole world on one page, updated every hour.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22%3E%3Crect width=%22100%22 height=%22100%22 rx=%2220%22 fill=%22%230e1014%22/%3E%3Ctext x=%2250%22 y=%2272%22 font-size=%2266%22 font-weight=%22900%22 text-anchor=%22middle%22 fill=%22%23ffd23f%22 font-family=%22system-ui%22%3E%3F%3C/text%3E%3C/svg%3E">
+<style>
+:root{--bg:#0e1014;--card:#171a21;--line:#262a33;--tx:#e6e8eb;--mut:#8a919e;--up:#30cc5a;--dn:#f63538;--acc:#ffd23f}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--tx);font:14px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;padding:16px;max-width:1440px;margin:auto}
+a{color:inherit;text-decoration:none}a:hover{text-decoration:underline}
+header{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+.logo{font-weight:800;font-size:26px;letter-spacing:-1px}.logo b{color:var(--acc)}
+#hero{background:var(--card);border:1px solid var(--line);border-left:4px solid var(--acc);border-radius:8px;padding:16px 18px;margin-bottom:12px}
+#hero p{font-size:clamp(17px,2.1vw,22px);line-height:1.35;font-weight:650;letter-spacing:-.01em;text-wrap:pretty}
+#hero .mut{display:block;margin-top:8px;font-size:11px;text-transform:uppercase;letter-spacing:.08em}
+.ad{display:none;margin-bottom:12px;text-align:center;min-height:90px}.ad.on{display:block}
+.ad small{display:block;font-size:10px;color:var(--mut);text-transform:uppercase;letter-spacing:.08em;margin-bottom:2px}
+.ad-mid{grid-column:span 12;margin:0}
+@media(max-width:600px){.ad{min-height:100px}}
+.mut{color:var(--mut);font-size:12px}
+#strip{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;margin-bottom:12px}
+.chip{background:var(--card);border:1px solid var(--line);border-radius:6px;padding:6px 10px;white-space:nowrap;font-size:12px;color:var(--mut)}
+.chip b{display:block;font-size:13px;color:var(--tx)}
+.grid{display:grid;gap:12px;grid-template-columns:repeat(12,1fr)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:12px;min-width:0}
+.card h2{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--mut);margin-bottom:10px;display:flex;justify-content:space-between;gap:8px;font-weight:600}
+.s4{grid-column:span 4}.s8{grid-column:span 8}
+@media(max-width:1000px){.s4,.s8{grid-column:span 12}}
+ol.news{list-style:none;counter-reset:n}
+ol.news li{counter-increment:n;display:grid;grid-template-columns:22px 1fr;gap:6px;padding:9px 0;border-top:1px solid var(--line)}
+ol.news li:first-child{border:0;padding-top:0}
+ol.news li::before{content:counter(n);font-weight:800;color:var(--acc);font-size:16px}
+.news a{font-weight:600;font-size:15px}
+#map{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.cty h3{font-size:12px;font-weight:600;margin-bottom:4px;display:flex;gap:6px;align-items:baseline}.cty h3 small{color:var(--mut);font-weight:400}
+.tm{position:relative;height:140px;background:#262931;overflow:hidden;border-radius:4px}
+.tile{position:absolute;display:flex;flex-direction:column;align-items:center;justify-content:center;border:1px solid #262931;color:#fff;overflow:hidden;text-align:center;line-height:1.1}
+.tile b{font-size:var(--fs);white-space:nowrap}.tile i{font-style:normal;font-size:calc(var(--fs)*.72)}
+.list{list-style:none}.list li{display:flex;gap:8px;align-items:center;padding:6px 0;border-top:1px solid var(--line);min-width:0}.list li:first-child{border:0}
+.list a{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.list img{width:28px;height:28px;border-radius:7px;flex:none;background:var(--line)}
+.pl{font-size:10px;padding:1px 5px;border-radius:4px;border:1px solid var(--line);color:var(--mut);flex:none}.pl:hover{color:var(--tx);text-decoration:none}
+.r{margin-left:auto;color:var(--mut);font-size:12px;white-space:nowrap;max-width:40%;overflow:hidden;text-overflow:ellipsis}
+.tabs button{background:none;border:0;color:var(--mut);font:inherit;cursor:pointer;text-transform:uppercase;margin-left:6px}
+.tabs button.on{color:var(--tx);text-decoration:underline}
+.up{color:var(--up)}.dn{color:var(--dn)}
+.bar{height:3px;background:var(--line);border-radius:2px;margin-top:4px}.bar i{display:block;height:100%;background:var(--acc);border-radius:2px}
+footer{margin-top:16px}
+.dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--up);margin-right:5px;vertical-align:1px;animation:pulse 2s infinite}
+@keyframes pulse{50%{opacity:.25}}
+.news li.new a{animation:flash 6s ease-out}@keyframes flash{0%{background:rgba(255,210,63,.35)}100%{background:transparent}}
+@media(prefers-reduced-motion:reduce){.dot,.news li.new a{animation:none}}
+@media(max-width:600px){body{padding:12px}#map{grid-template-columns:1fr}.card h2 span:not(.tabs){display:none}}
+</style>
+</head>
+<body>
+<header><div class="logo">now<b>what?</b></div><div class="mut"><span class="dot" id="dot" hidden></span>the world, right now · updated <span id="upd">…</span></div></header>
+<section id="hero" hidden><p id="sum"></p><span class="mut">The day in 2 sentences · AI-written from the stories below · <span id="sumat"></span></span></section>
+<div id="strip"></div>
+<div class="ad" id="ad-top"><small>Advertisement</small></div>
+<div class="grid">
+  <section class="card s4"><h2>Top 5 stories <span>by cross-outlet coverage</span></h2><ol class="news" id="news"></ol></section>
+  <section class="card s8"><h2>Global market map <span>US + top 3 economies · size = mkt cap (USD) · color = % today</span></h2><div id="map"></div></section>
+  <div class="ad ad-mid" id="ad-mid"><small>Advertisement</small></div>
+  <section class="card s4"><h2>Top apps · iPhone + Android <span class="tabs" id="apptabs"></span></h2><ul class="list" id="apps"></ul></section>
+  <section class="card s4"><h2>Most-read on Wikipedia <span>yesterday</span></h2><ul class="list" id="wiki"></ul></section>
+  <section class="card s4"><h2>What the world is betting on</h2><ul class="list" id="bets"></ul></section>
+</div>
+<footer class="mut">Headlines link to their publishers (BBC, Al Jazeera, NYT, Guardian, NPR, DW, CNBC and others) · market data, app charts (Apple &amp; Google, US), Wikimedia, prediction markets · news, odds &amp; crypto refresh every 30 seconds, markets and charts hourly · <a href="privacy.html">Privacy</a></footer>
+<script src="config.js"></script>
+<script>
+const $=id=>document.getElementById(id),esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const sign=v=>(v>=0?'+':'')+(+v).toFixed(2)+'%',pct=v=>`<span class="${v>=0?'up':'dn'}">${sign(v)}</span>`;
+const link=(u,t,st='')=>`<a href="${esc(u)}" target="_blank" rel="noopener"${st}>${esc(t)}</a>`;
+let D,appTab;
+
+// Finviz palette: -3% red → 0 grey → +3% green
+function color(c){const s=[[-3,[246,53,56]],[-2,[191,64,69]],[-1,[139,68,78]],[0,[65,69,84]],[1,[53,118,78]],[2,[47,158,79]],[3,[48,204,90]]];
+  c=Math.max(-3,Math.min(3,c));for(let i=1;i<s.length;i++)if(c<=s[i][0]){const[a,ca]=s[i-1],[b,cb]=s[i],t=(c-a)/(b-a);return`rgb(${ca.map((v,j)=>Math.round(v+(cb[j]-v)*t))})`}}
+
+// squarified treemap
+function squarify(items,x,y,w,h){const out=[],tot=items.reduce((s,i)=>s+i.v,0);if(!tot||w<=0||h<=0)return out;
+  let rest=items.map(i=>({...i,a:i.v*w*h/tot}));
+  while(rest.length){const sh=Math.min(w,h),worst=r=>{const s=r.reduce((a,b)=>a+b.a,0),mx=Math.max(...r.map(q=>q.a)),mn=Math.min(...r.map(q=>q.a));return Math.max(sh*sh*mx/(s*s),s*s/(sh*sh*mn))};
+    let row=[rest[0]],i=1;while(i<rest.length&&worst([...row,rest[i]])<=worst(row))row.push(rest[i++]);
+    const th=row.reduce((a,b)=>a+b.a,0)/sh;let off=0;
+    for(const r of row){const len=r.a/th;out.push(w>=h?{...r,x,y:y+off,w:th,h:len}:{...r,x:x+off,y,w:len,h:th});off+=len}
+    if(w>=h){x+=th;w-=th}else{y+=th;h-=th}rest=rest.slice(i)}
+  return out}
+
+function renderMap(){const el=$('map');if(!D?.market?.countries)return;
+  el.innerHTML=D.market.countries.map((c,i)=>`<div class="cty"><h3>${esc(c.name)} <small>${esc(c.index)}</small> ${c.ichg==null?'':pct(c.ichg)}</h3><div class="tm" id="tm${i}"></div></div>`).join('');
+  D.market.countries.forEach((c,i)=>{const box=$('tm'+i),W=box.clientWidth,H=box.clientHeight;
+    box.innerHTML=squarify([...c.stocks].map(s=>({...s,v:s.cap})).sort((a,b)=>b.v-a.v),0,0,W,H).map(t=>{const fs=Math.max(8,Math.min(18,Math.min(t.w/(t.t.length*.62),Math.sqrt(t.w*t.h)/4)));
+      return`<div class="tile" title="${esc(t.t)} ${sign(t.chg)} · $${t.cap}B" style="left:${t.x}px;top:${t.y}px;width:${t.w}px;height:${t.h}px;background:${color(t.chg)};--fs:${fs}px">${t.w>Math.max(24,t.t.length*fs*.62)&&t.h>16?`<b>${esc(t.t)}</b>${t.h>32?`<i>${sign(t.chg)}</i>`:''}`:''}</div>`}).join('')})}
+
+function renderApps(){const a=D.apps||{};if(!a[appTab])appTab=Object.keys(a)[0];
+  $('apptabs').innerHTML=Object.keys(a).map(k=>`<button class="${k===appTab?'on':''}" onclick="appTab='${k}';renderApps()">${k}</button>`).join('');
+  $('apps').innerHTML=(a[appTab]||[]).slice(0,10).map((x,i)=>`<li><span class="mut">${i+1}</span><img src="${esc(x.icon)}" alt="" loading="lazy" onerror="this.style.visibility='hidden'">${link(x.on.ios||x.on.android,x.name)}<span class="r">${x.on.ios?link(x.on.ios,'iOS',' class="pl"'):''} ${x.on.android?link(x.on.android,'Android',' class="pl"'):''}</span></li>`).join('')}
+
+function renderSummary(s){if(!s?.text)return;$('hero').hidden=false;$('sum').textContent=s.text;
+  $('sumat').textContent='updated '+new Date(s.at).toLocaleTimeString([],{hour:'numeric',minute:'2-digit'})}
+
+// ads: nothing loads until config.js has an AdSense client ID + slot IDs
+function loadAds(){const c=window.NW||{};if(!c.adsenseClient)return;const s=document.createElement('script');s.async=true;s.crossOrigin='anonymous';
+  s.src='https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client='+encodeURIComponent(c.adsenseClient);document.head.appendChild(s);
+  for(const[k,id]of Object.entries(c.adSlots||{})){const box=$('ad-'+k);if(!box||!id)continue;box.classList.add('on');
+    const ins=document.createElement('ins');ins.className='adsbygoogle';ins.style.display='block';ins.dataset.adClient=c.adsenseClient;ins.dataset.adSlot=id;
+    ins.dataset.adFormat='horizontal';ins.dataset.fullWidthResponsive='true';box.appendChild(ins);(window.adsbygoogle=window.adsbygoogle||[]).push({})}}
+
+// Two data layers: S = hourly file (markets, apps, Wikipedia + fallbacks), L = live feed refreshed every 30s.
+let S={},L={},seen=null;
+const fresh=(x,ms)=>x?.updated&&Date.now()-new Date(x.updated)<ms;
+function view(){const lv=fresh(L,18e4)?L:{}; // live wins while it's under 3 min old
+  const sum=[lv.summary,S.summary].filter(x=>x?.text).sort((a,b)=>new Date(b.at)-new Date(a.at))[0];
+  let strip=S.market?.strip||[];
+  if(lv.crypto){const c=new Set(lv.crypto.map(x=>x.name));strip=strip.filter(x=>!c.has(x.name)).concat(lv.crypto)}
+  return{headlines:lv.headlines||S.headlines,bets:lv.bets||S.bets,summary:sum,strip,updated:lv.updated||S.updated,live:!!lv.updated}}
+
+function tick(){const v=view();if(!v.updated)return;const sec=Math.max(0,Math.round((Date.now()-new Date(v.updated))/1e3));
+  $('upd').textContent=sec<60?sec+'s ago':sec<7200?Math.round(sec/60)+' min ago':new Date(v.updated).toLocaleString();$('dot').hidden=!v.live}
+
+function renderLive(){const v=view();
+  $('strip').innerHTML=v.strip.map(x=>`<div class="chip">${esc(x.name)}<b>${x.price.toLocaleString()} ${pct(x.chg)}</b></div>`).join('');
+  const hs=v.headlines||[];
+  $('news').innerHTML=hs.map(h=>`<li class="${seen&&!seen.has(h.url)?'new':''}"><div>${link(h.url,h.title)}<div class="mut">${esc(h.source)}${h.also.length?' · also '+h.also.map(esc).join(', '):''}</div></div></li>`).join('');
+  seen=new Set(hs.map(h=>h.url));
+  $('bets').innerHTML=(v.bets||[]).map(b=>`<li>${link(b.url,b.q,' style="flex:1"')}<span class="r"><b style="color:var(--tx)">${b.yes}%</b> ${esc(b.outcome)}</span></li>`).join('');
+  renderSummary(v.summary);tick()}
+
+function renderStatic(){D=S;const tr=S.trending||[],mx=Math.max(1,...tr.map(w=>w.views));
+  $('wiki').innerHTML=tr.map(w=>`<li><div style="flex:1;min-width:0">${link(w.url,w.title,' style="display:block"')}<div class="bar"><i style="width:${w.views/mx*100}%"></i></div></div><span class="r">${Math.round(w.views/1e3)}k</span></li>`).join('');
+  renderApps();renderMap()}
+
+async function loadStatic(){try{S=window.__DATA__||await(await fetch('data.json?'+Date.now())).json();renderStatic();renderLive()}catch(e){if(!S.updated)$('upd').textContent='data unavailable'}}
+async function loadLive(){if(document.hidden)return; // no requests from background tabs
+  try{if(window.__LIVE__){L=window.__LIVE__;L.updated=new Date().toISOString()}else{const r=await fetch('/api/live',{cache:'no-store'});if(!r.ok)return;L=await r.json()}renderLive()}catch(e){}}
+
+loadStatic();loadLive();loadAds();
+setInterval(loadLive,3e4);setInterval(loadStatic,3e5);setInterval(tick,1e3);
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)loadLive()});
+addEventListener('resize',()=>{clearTimeout(window._r);window._r=setTimeout(renderMap,150)});
+</script>
+</body>
+</html>
