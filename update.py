@@ -9,7 +9,7 @@ AI headline in case the 30-second live layer (worker.js) is down; the page prefe
 - One AI call per hour (Claude Haiku) writes the 2-sentence summary of the day.
   Without ANTHROPIC_API_KEY the summary is skipped; everything else still works.
 """
-import json, os, re, hashlib, subprocess, datetime as dt, urllib.request, xml.etree.ElementTree as ET
+import json, os, re, hashlib, subprocess, datetime as dt, urllib.request, urllib.error, xml.etree.ElementTree as ET
 from pathlib import Path
 
 ROOT = Path(__file__).parent
@@ -285,8 +285,9 @@ def summary(data):
                 return live
         except Exception as ex:
             print("live summary unavailable, writing fallback:", ex)
-    key = os.environ.get("ANTHROPIC_API_KEY")
+    key = os.environ.get("ANTHROPIC_API_KEY", "").strip()
     if not key or not BRIEF:
+        print(f"summary skipped: key={'set' if key else 'MISSING'} headlines={len(BRIEF)}")
         return prev
     lines = ["HEADLINES:"] + [f"- {h['t']} [{1 + len(h['also'])}]" for h in BRIEF]
     mk = data.get("market") or {}
@@ -299,8 +300,11 @@ def summary(data):
         return prev
     body = {"model": MODEL, "max_tokens": 160, "system": SYSTEM,
             "messages": [{"role": "user", "content": f"<data>\n{ctx}\n</data>"}]}
-    r = get("https://api.anthropic.com/v1/messages", data=json.dumps(body).encode(), timeout=60,
-            headers={"x-api-key": key, "anthropic-version": "2023-06-01", "content-type": "application/json"})
+    try:
+        r = get("https://api.anthropic.com/v1/messages", data=json.dumps(body).encode(), timeout=60,
+                headers={"x-api-key": key, "anthropic-version": "2023-06-01", "content-type": "application/json"})
+    except urllib.error.HTTPError as ex:
+        raise RuntimeError(f"Anthropic API {ex.code}: {ex.read()[:300].decode(errors='replace')}")
     text = " ".join(b.get("text", "") for b in r.get("content", []) if b.get("type") == "text").strip()
     if not text:
         return prev

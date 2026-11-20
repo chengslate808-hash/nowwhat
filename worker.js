@@ -97,8 +97,10 @@ export class Live extends DurableObject {
     snap.summary = old.summary;
     try {
       snap.summary = await this.summary(old.summary, snap);
+      health.summary = { ok: !!snap.summary, note: this.summaryNote || null };
     } catch (e) {
       console.log("summary failed:", e.message);
+      health.summary = { ok: false, error: String(e.message).slice(0, 300) };
     }
     snap._health = health;
     await this.ctx.storage.put("snap", snap);
@@ -167,8 +169,9 @@ export class Live extends DurableObject {
   }
 
   async summary(prev, snap) {
-    const key = this.env.ANTHROPIC_API_KEY;
-    if (!key || !this.brief?.length) return prev;
+    const key = (this.env.ANTHROPIC_API_KEY || "").trim();
+    this.summaryNote = null;
+    if (!key || !this.brief?.length) { this.summaryNote = `skipped: key=${key ? "set" : "MISSING"} headlines=${this.brief?.length || 0}`; return prev; }
     const lead = [...this.brief[0].k].sort().join(" ");
     const age = prev?.at ? Date.now() - Date.parse(prev.at) : Infinity;
     const leadChanged = prev?.lead !== lead;
@@ -187,7 +190,7 @@ export class Live extends DurableObject {
         messages: [{ role: "user", content: `<data>\n${ctx}\n</data>` }],
       }),
     });
-    if (!r.ok) throw new Error(`anthropic ${r.status}`);
+    if (!r.ok) throw new Error(`anthropic ${r.status}: ${(await r.text()).slice(0, 250)}`);
     const j = await r.json();
     const text = (j.content || []).filter((b) => b.type === "text").map((b) => b.text).join(" ").trim();
     return text ? { text, at: new Date().toISOString(), lead, model: MODEL } : prev;
