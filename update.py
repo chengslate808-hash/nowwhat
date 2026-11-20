@@ -298,7 +298,7 @@ def summary(data):
     h = hashlib.sha256(ctx.encode()).hexdigest()[:16]
     if prev and prev.get("hash") == h:  # nothing changed -> no tokens spent
         return prev
-    body = {"model": MODEL, "max_tokens": 160, "system": SYSTEM,
+    body = {"model": MODEL, "max_tokens": 1024, "system": SYSTEM,
             "messages": [{"role": "user", "content": f"<data>\n{ctx}\n</data>"}]}
     try:
         r = get("https://api.anthropic.com/v1/messages", data=json.dumps(body).encode(), timeout=60,
@@ -306,10 +306,11 @@ def summary(data):
     except urllib.error.HTTPError as ex:
         raise RuntimeError(f"Anthropic API {ex.code}: {ex.read()[:300].decode(errors='replace')}")
     text = " ".join(b.get("text", "") for b in r.get("content", []) if b.get("type") == "text").strip()
+    u = r.get("usage", {})
+    print(f"summary: stop={r.get('stop_reason')} blocks={[b.get('type') for b in r.get('content', [])]} "
+          f"{u.get('input_tokens')} in / {u.get('output_tokens')} out tokens, text={'yes' if text else 'NO'}")
     if not text:
         return prev
-    u = r.get("usage", {})
-    print(f"summary: {u.get('input_tokens')} in / {u.get('output_tokens')} out tokens")
     return {"text": text, "hash": h, "at": NOW.isoformat(timespec="minutes"), "model": MODEL}
 
 

@@ -81,7 +81,7 @@ export class Live extends DurableObject {
   async refresh() {
     const old = (await this.ctx.storage.get("snap")) || {};
     const health = old._health || { _feeds: {} };
-    const snap = { updated: new Date().toISOString() };
+    const snap = { updated: new Date().toISOString(), v: 3 };
     const results = await Promise.allSettled([this.headlines(health), this.bets(), this.crypto()]);
     ["headlines", "bets", "crypto"].forEach((name, i) => {
       const r = results[i], h = health[name] || {};
@@ -182,7 +182,7 @@ export class Live extends DurableObject {
       signal: AbortSignal.timeout(30000),
       headers: { "x-api-key": key, "anthropic-version": "2023-06-01", "content-type": "application/json" },
       body: JSON.stringify({
-        model: MODEL, max_tokens: 160,
+        model: MODEL, max_tokens: 1024,
         system: "You write the headline for a world-news dashboard. Using ONLY the headlines inside <data>, write exactly 2 sentences, " +
           "45 words maximum in total, summing up the most important things happening in the world right now. Lead with the biggest " +
           "story (the [n] after a headline is how many outlets cover it). Neutral and factual: no opinions, no predictions, no " +
@@ -193,6 +193,7 @@ export class Live extends DurableObject {
     if (!r.ok) throw new Error(`anthropic ${r.status}: ${(await r.text()).slice(0, 250)}`);
     const j = await r.json();
     const text = (j.content || []).filter((b) => b.type === "text").map((b) => b.text).join(" ").trim();
+    this.summaryNote = `stop=${j.stop_reason} blocks=${(j.content || []).map((b) => b.type).join(",")} out=${j.usage?.output_tokens} text=${text ? "yes" : "NO"}`;
     return text ? { text, at: new Date().toISOString(), lead, model: MODEL } : prev;
   }
 }
