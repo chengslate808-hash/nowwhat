@@ -23,7 +23,7 @@ header{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:1
 .ad-mid{grid-column:span 12;margin:0}
 @media(max-width:600px){.ad{min-height:100px}}
 .mut{color:var(--mut);font-size:12px}
-#strip{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;margin-bottom:12px}
+#tape{display:block;min-height:46px;margin-bottom:12px;border-radius:8px;overflow:hidden}
 .chip{background:var(--card);border:1px solid var(--line);border-radius:6px;padding:6px 10px;white-space:nowrap;font-size:12px;color:var(--mut)}
 .chip b{display:block;font-size:13px;color:var(--tx)}
 .grid{display:grid;gap:12px;grid-template-columns:repeat(12,1fr)}
@@ -36,9 +36,8 @@ ol.news li{counter-increment:n;display:grid;grid-template-columns:22px 1fr;gap:6
 ol.news li:first-child{border:0;padding-top:0}
 ol.news li::before{content:counter(n);font-weight:800;color:var(--acc);font-size:16px}
 .news a{font-weight:600;font-size:15px}
-#map{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.cty h3{font-size:12px;font-weight:600;margin-bottom:4px;display:flex;gap:6px;align-items:baseline}.cty h3 small{color:var(--mut);font-weight:400}
-.tm{position:relative;height:140px;background:#262931;overflow:hidden;border-radius:4px}
+#map{height:380px;border-radius:4px;overflow:hidden}#map tv-heatmap{display:block;width:100%;height:100%}
+.mnote{font-size:11px;color:var(--mut);margin-top:6px}
 .tile{position:absolute;display:flex;flex-direction:column;align-items:center;justify-content:center;border:1px solid #262931;color:#fff;overflow:hidden;text-align:center;line-height:1.1}
 .tile b{font-size:var(--fs);white-space:nowrap}.tile i{font-style:normal;font-size:calc(var(--fs)*.72)}
 .list{list-style:none}.list li{display:flex;gap:8px;align-items:center;padding:6px 0;border-top:1px solid var(--line);min-width:0}.list li:first-child{border:0}
@@ -55,49 +54,36 @@ footer{margin-top:16px}
 @keyframes pulse{50%{opacity:.25}}
 .news li.new a{animation:flash 6s ease-out}@keyframes flash{0%{background:rgba(255,210,63,.35)}100%{background:transparent}}
 @media(prefers-reduced-motion:reduce){.dot,.news li.new a{animation:none}}
-@media(max-width:600px){body{padding:12px}#map{grid-template-columns:1fr}.card h2 span:not(.tabs){display:none}}
+@media(max-width:600px){body{padding:12px}#map{height:320px}.card h2 span:not(.tabs){display:none}}
 </style>
 </head>
 <body>
 <header><div class="logo">now<b>what?</b></div><div class="mut"><span class="dot" id="dot" hidden></span>the world, right now · updated <span id="upd">…</span></div></header>
 <section id="hero" hidden><p id="sum"></p><span class="mut">The day in 2 sentences · AI-written from the stories below · <span id="sumat"></span></span></section>
-<div id="strip"></div>
+<tv-ticker-tape id="tape" theme="dark" transparent symbols="FOREXCOM:SPXUSD,FOREXCOM:NSXUSD,FOREXCOM:DJI,OANDA:JP225USD,OANDA:DE30EUR,OANDA:HK33HKD,OANDA:CN50USD,TVC:US10Y,OANDA:XAUUSD,TVC:USOIL,BITSTAMP:BTCUSD,BITSTAMP:ETHUSD"></tv-ticker-tape>
 <div class="ad" id="ad-top"><small>Advertisement</small></div>
 <div class="grid">
   <section class="card s4"><h2>Top 5 stories <span>by cross-outlet coverage</span></h2><ol class="news" id="news"></ol></section>
-  <section class="card s8"><h2>Global market map <span>US + top 3 economies · size = mkt cap (USD) · color = % today</span></h2><div id="map"></div></section>
+  <section class="card s8"><h2>Market map <span class="tabs" id="maptabs"></span></h2><div id="map"></div><div class="mnote">Size = market cap · color = % change today · data by TradingView (delayed) · Japan: Nikkei 225 in the ticker above (no free Japan map)</div></section>
   <div class="ad ad-mid" id="ad-mid"><small>Advertisement</small></div>
   <section class="card s4"><h2>Top apps · iPhone + Android <span class="tabs" id="apptabs"></span></h2><ul class="list" id="apps"></ul></section>
   <section class="card s4"><h2>Most-read on Wikipedia <span>yesterday</span></h2><ul class="list" id="wiki"></ul></section>
   <section class="card s4"><h2>What the world is betting on</h2><ul class="list" id="bets"></ul></section>
 </div>
-<footer class="mut">Headlines link to their publishers (BBC, Al Jazeera, NYT, Guardian, NPR, DW, CNBC and others) · market data, app charts (Apple &amp; Google, US), Wikimedia, prediction markets · news, odds &amp; crypto refresh every 30 seconds, markets and charts hourly · <a href="privacy.html">Privacy</a></footer>
+<footer class="mut">Headlines link to their publishers (BBC, Al Jazeera, NYT, Guardian, NPR, DW, CNBC and others) · market widgets by TradingView, app charts (Apple &amp; Google, US), Wikimedia, prediction markets · news, odds &amp; crypto refresh every 30 seconds, app charts hourly · <a href="privacy.html">Privacy</a></footer>
 <script src="config.js"></script>
+<script type="module" src="https://widgets.tradingview-widget.com/w/en/tv-ticker-tape.js"></script>
+<script type="module" src="https://widgets.tradingview-widget.com/w/en/tv-heatmap.js"></script>
 <script>
 const $=id=>document.getElementById(id),esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const sign=v=>(v>=0?'+':'')+(+v).toFixed(2)+'%',pct=v=>`<span class="${v>=0?'up':'dn'}">${sign(v)}</span>`;
 const link=(u,t,st='')=>`<a href="${esc(u)}" target="_blank" rel="noopener"${st}>${esc(t)}</a>`;
 let D,appTab;
 
-// Finviz palette: -3% red → 0 grey → +3% green
-function color(c){const s=[[-3,[246,53,56]],[-2,[191,64,69]],[-1,[139,68,78]],[0,[65,69,84]],[1,[53,118,78]],[2,[47,158,79]],[3,[48,204,90]]];
-  c=Math.max(-3,Math.min(3,c));for(let i=1;i<s.length;i++)if(c<=s[i][0]){const[a,ca]=s[i-1],[b,cb]=s[i],t=(c-a)/(b-a);return`rgb(${ca.map((v,j)=>Math.round(v+(cb[j]-v)*t))})`}}
-
-// squarified treemap
-function squarify(items,x,y,w,h){const out=[],tot=items.reduce((s,i)=>s+i.v,0);if(!tot||w<=0||h<=0)return out;
-  let rest=items.map(i=>({...i,a:i.v*w*h/tot}));
-  while(rest.length){const sh=Math.min(w,h),worst=r=>{const s=r.reduce((a,b)=>a+b.a,0),mx=Math.max(...r.map(q=>q.a)),mn=Math.min(...r.map(q=>q.a));return Math.max(sh*sh*mx/(s*s),s*s/(sh*sh*mn))};
-    let row=[rest[0]],i=1;while(i<rest.length&&worst([...row,rest[i]])<=worst(row))row.push(rest[i++]);
-    const th=row.reduce((a,b)=>a+b.a,0)/sh;let off=0;
-    for(const r of row){const len=r.a/th;out.push(w>=h?{...r,x,y:y+off,w:th,h:len}:{...r,x:x+off,y,w:len,h:th});off+=len}
-    if(w>=h){x+=th;w-=th}else{y+=th;h-=th}rest=rest.slice(i)}
-  return out}
-
-function renderMap(){const el=$('map');if(!D?.market?.countries)return;
-  el.innerHTML=D.market.countries.map((c,i)=>`<div class="cty"><h3>${esc(c.name)} <small>${esc(c.index)}</small> ${c.ichg==null?'':pct(c.ichg)}</h3><div class="tm" id="tm${i}"></div></div>`).join('');
-  D.market.countries.forEach((c,i)=>{const box=$('tm'+i),W=box.clientWidth,H=box.clientHeight;
-    box.innerHTML=squarify([...c.stocks].map(s=>({...s,v:s.cap})).sort((a,b)=>b.v-a.v),0,0,W,H).map(t=>{const fs=Math.max(8,Math.min(18,Math.min(t.w/(t.t.length*.62),Math.sqrt(t.w*t.h)/4)));
-      return`<div class="tile" title="${esc(t.t)} ${sign(t.chg)} · $${t.cap}B" style="left:${t.x}px;top:${t.y}px;width:${t.w}px;height:${t.h}px;background:${color(t.chg)};--fs:${fs}px">${t.w>Math.max(24,t.t.length*fs*.62)&&t.h>16?`<b>${esc(t.t)}</b>${t.h>32?`<i>${sign(t.chg)}</i>`:''}`:''}</div>`}).join('')})}
+// Market map: TradingView's free heatmap widget (their data, their branding). One map at a time keeps the page light.
+const MAPS={US:'SPX500','China/HK':'HSCEI',Germany:'DAX'};let mapTab='US';
+function renderMap(){$('maptabs').innerHTML=Object.keys(MAPS).map(k=>`<button class="${k===mapTab?'on':''}" onclick="mapTab='${k}';renderMap()">${k}</button>`).join('');
+  $('map').innerHTML=`<tv-heatmap heatmap-type="stock" data-source="${MAPS[mapTab]}" grouping="sector" block-size="market_cap_basic" block-color="change" theme="dark" transparent></tv-heatmap>`}
 
 function renderApps(){const a=D.apps||{};if(!a[appTab])appTab=Object.keys(a)[0];
   $('apptabs').innerHTML=Object.keys(a).map(k=>`<button class="${k===appTab?'on':''}" onclick="appTab='${k}';renderApps()">${k}</button>`).join('');
@@ -118,15 +104,12 @@ let S={},L={},seen=null;
 const fresh=(x,ms)=>x?.updated&&Date.now()-new Date(x.updated)<ms;
 function view(){const lv=fresh(L,18e4)?L:{}; // live wins while it's under 3 min old
   const sum=[lv.summary,S.summary].filter(x=>x?.text).sort((a,b)=>new Date(b.at)-new Date(a.at))[0];
-  let strip=S.market?.strip||[];
-  if(lv.crypto){const c=new Set(lv.crypto.map(x=>x.name));strip=strip.filter(x=>!c.has(x.name)).concat(lv.crypto)}
-  return{headlines:lv.headlines||S.headlines,bets:lv.bets||S.bets,summary:sum,strip,updated:lv.updated||S.updated,live:!!lv.updated}}
+  return{headlines:lv.headlines||S.headlines,bets:lv.bets||S.bets,summary:sum,updated:lv.updated||S.updated,live:!!lv.updated}}
 
 function tick(){const v=view();if(!v.updated)return;const sec=Math.max(0,Math.round((Date.now()-new Date(v.updated))/1e3));
   $('upd').textContent=sec<60?sec+'s ago':sec<7200?Math.round(sec/60)+' min ago':new Date(v.updated).toLocaleString();$('dot').hidden=!v.live}
 
 function renderLive(){const v=view();
-  $('strip').innerHTML=v.strip.map(x=>`<div class="chip">${esc(x.name)}<b>${x.price.toLocaleString()} ${pct(x.chg)}</b></div>`).join('');
   const hs=v.headlines||[];
   $('news').innerHTML=hs.map(h=>`<li class="${seen&&!seen.has(h.url)?'new':''}"><div>${link(h.url,h.title)}<div class="mut">${esc(h.source)}${h.also.length?' · also '+h.also.map(esc).join(', '):''}</div></div></li>`).join('');
   seen=new Set(hs.map(h=>h.url));
@@ -135,7 +118,7 @@ function renderLive(){const v=view();
 
 function renderStatic(){D=S;const tr=S.trending||[],mx=Math.max(1,...tr.map(w=>w.views));
   $('wiki').innerHTML=tr.map(w=>`<li><div style="flex:1;min-width:0">${link(w.url,w.title,' style="display:block"')}<div class="bar"><i style="width:${w.views/mx*100}%"></i></div></div><span class="r">${Math.round(w.views/1e3)}k</span></li>`).join('');
-  renderApps();renderMap()}
+  renderApps()}
 
 async function loadStatic(){try{S=window.__DATA__||await(await fetch('data.json?'+Date.now())).json();renderStatic();renderLive()}catch(e){if(!S.updated)$('upd').textContent='data unavailable'}}
 async function loadLive(){if(document.hidden)return; // no requests from background tabs
@@ -144,7 +127,7 @@ async function loadLive(){if(document.hidden)return; // no requests from backgro
 loadStatic();loadLive();loadAds();
 setInterval(loadLive,3e4);setInterval(loadStatic,3e5);setInterval(tick,1e3);
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)loadLive()});
-addEventListener('resize',()=>{clearTimeout(window._r);window._r=setTimeout(renderMap,150)});
+renderMap();
 </script>
 </body>
 </html>

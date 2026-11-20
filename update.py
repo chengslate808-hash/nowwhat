@@ -1,6 +1,6 @@
 """nowwhat.today hourly updater -> public/data.json
 
-Hourly layer: market map, app charts, Wikipedia. It also writes fallback copies of the headlines, bets and
+Hourly layer: app charts, Wikipedia. (Market map + ticker are free TradingView widgets in index.html.) It also writes fallback copies of the headlines, bets and
 AI headline in case the 30-second live layer (worker.js) is down; the page prefers live data when it's fresh.
 
 - Every section has a chain of providers: primary first, vetted backups after.
@@ -122,7 +122,7 @@ STRIP = {"^GSPC": "S&P 500", "^IXIC": "Nasdaq", "000001.SS": "Shanghai", "^HSI":
 FX_FOR = {"HK": "HKD=X", "SS": "CNY=X", "SZ": "CNY=X", "T": "JPY=X", "DE": "EUR=X"}
 
 
-def market_yahoo():
+def market_yahoo():  # UNUSED: replaced by free TradingView widgets (Yahoo terms are personal-use only)
     # NOTE: Yahoo's terms don't allow commercial use. Before running ads, add a licensed
     # provider as the first entry in this section's chain (see SECTIONS at the bottom).
     import yfinance as yf
@@ -320,7 +320,6 @@ def summary(data):
 # Each section: providers tried in order. Add a provider = add a (name, function) pair.
 SECTIONS = [
     ("headlines", [("rss", headlines)]),
-    ("market", [("yahoo", market_yahoo)]),
     ("apps", [("apple+play", apps)]),
     ("trending", [("wikimedia", trending)]),
     ("bets", [("polymarket", bets_polymarket), ("manifold", bets_manifold)]),
