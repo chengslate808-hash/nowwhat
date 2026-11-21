@@ -6,7 +6,12 @@
 <title>nowwhat — the world, right now</title>
 <meta name="description" content="What is happening in the world right now: top stories, global markets, top apps and trends on one page. In English, 中文, Español, हिन्दी and العربية.">
 <meta property="og:title" content="nowwhat — the world, right now">
-<meta property="og:description" content="The whole world on one page, updated every hour.">
+<meta property="og:description" content="The whole world on one page, updated every 30 seconds.">
+<meta property="og:image" content="https://nowwhat.today/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="apple-touch-icon" href="/icon-180.png">
+<link rel="alternate" type="application/rss+xml" title="nowwhat daily" href="/feed.xml">
+<meta name="theme-color" content="#0e1014">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22%3E%3Crect width=%22100%22 height=%22100%22 rx=%2220%22 fill=%22%230e1014%22/%3E%3Ctext x=%2250%22 y=%2272%22 font-size=%2266%22 font-weight=%22900%22 text-anchor=%22middle%22 fill=%22%23ffd23f%22 font-family=%22system-ui%22%3E%3F%3C/text%3E%3C/svg%3E">
 <style>
 :root{--bg:#0e1014;--card:#171a21;--line:#262a33;--tx:#e6e8eb;--mut:#8a919e;--up:#30cc5a;--dn:#f63538;--acc:#ffd23f}
@@ -15,8 +20,8 @@ body{background:var(--bg);color:var(--tx);font:14px/1.45 system-ui,-apple-system
 a{color:inherit;text-decoration:none}a:hover{text-decoration:underline}
 header{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:12px}
 .langs{margin-inline-start:auto;display:flex;gap:2px;flex-wrap:wrap}
-.langs button{background:none;border:1px solid transparent;border-radius:6px;color:var(--mut);font:inherit;font-size:13px;padding:3px 8px;cursor:pointer}
-.langs button:hover{color:var(--tx)}.langs button.on{color:var(--tx);border-color:var(--line);background:var(--card)}
+.langs a{border:1px solid transparent;border-radius:6px;color:var(--mut);font-size:13px;padding:3px 8px}
+.langs a:hover{color:var(--tx);text-decoration:none}.langs a.on{color:var(--tx);border-color:var(--line);background:var(--card)}
 .logo{font-weight:800;font-size:26px;letter-spacing:-1px}.logo b{color:var(--acc)}
 #hero{background:var(--card);border:1px solid var(--line);border-inline-start:4px solid var(--acc);border-radius:8px;padding:16px 18px;margin-bottom:12px}
 #hero p{font-size:clamp(17px,2.1vw,22px);line-height:1.35;font-weight:650;letter-spacing:-.01em;text-wrap:pretty}
@@ -59,6 +64,7 @@ footer{margin-top:16px}
 @media(prefers-reduced-motion:reduce){.dot,.news li.new a{animation:none}}
 @media(max-width:600px){body{padding:12px}#map{height:320px}.card h2 span:not(.tabs){display:none}}
 </style>
+<script type="application/json" id="i18n">{"tagline":{"en":"the world, right now","zh":"世界，此刻","es":"el mundo, ahora mismo","hi":"दुनिया, अभी","ar":"العالم، الآن"},"updated":{"en":"updated","zh":"更新于","es":"actualizado","hi":"अपडेट","ar":"تم التحديث"},"hero":{"en":"The day in 2 sentences · AI-written from the stories below","zh":"两句话看今天 · 由AI根据下方新闻撰写","es":"El día en 2 frases · escrito por IA a partir de las noticias de abajo","hi":"दो वाक्यों में आज का दिन · नीचे की खबरों से AI द्वारा लिखा गया","ar":"اليوم في جملتين · كتبه الذكاء الاصطناعي من الأخبار أدناه"},"ad":{"en":"Advertisement","zh":"广告","es":"Publicidad","hi":"विज्ञापन","ar":"إعلان"},"top5":{"en":"Top 5 stories","zh":"五大新闻","es":"5 noticias principales","hi":"शीर्ष 5 खबरें","ar":"أهم 5 أخبار"},"bycov":{"en":"by cross-outlet coverage","zh":"按媒体报道数量排序","es":"según cobertura entre medios","hi":"मीडिया कवरेज के अनुसार","ar":"حسب التغطية الإعلامية"},"also":{"en":"also","zh":"另见","es":"también","hi":"इसके अलावा","ar":"أيضًا"},"map":{"en":"Market map","zh":"市场热力图","es":"Mapa del mercado","hi":"बाज़ार मानचित्र","ar":"خريطة السوق"},"US":{"en":"US","zh":"美国","es":"EE. UU.","hi":"अमेरिका","ar":"أمريكا"},"China/HK":{"en":"China/HK","zh":"中国/香港","es":"China/HK","hi":"चीन/हांगकांग","ar":"الصين/هونغ كونغ"},"Germany":{"en":"Germany","zh":"德国","es":"Alemania","hi":"जर्मनी","ar":"ألمانيا"},"mnote":{"en":"Size = market cap · color = % change today · data by TradingView (delayed) · Japan: Nikkei 225 in the ticker above","zh":"面积 = 市值 · 颜色 = 今日涨跌幅 · 数据来自TradingView（延迟）· 日本：见上方行情条中的日经225","es":"Tamaño = capitalización · color = % de cambio hoy · datos de TradingView (con retraso) · Japón: Nikkei 225 en la cinta superior","hi":"आकार = बाज़ार पूंजीकरण · रंग = आज का % बदलाव · डेटा TradingView से (विलंबित) · जापान: ऊपर टिकर में निक्केई 225","ar":"الحجم = القيمة السوقية · اللون = نسبة التغير اليوم · البيانات من TradingView (متأخرة) · اليابان: مؤشر نيكي 225 في الشريط أعلاه"},"apps":{"en":"Top apps · iPhone + Android","zh":"热门应用 · iPhone + Android","es":"Apps más populares · iPhone + Android","hi":"शीर्ष ऐप्स · iPhone + Android","ar":"أشهر التطبيقات · iPhone + Android"},"grossing":{"en":"grossing","zh":"畅销","es":"más ingresos","hi":"सबसे ज़्यादा कमाई","ar":"الأعلى ربحًا"},"free":{"en":"free","zh":"免费","es":"gratis","hi":"मुफ़्त","ar":"مجانية"},"wiki":{"en":"Most-read on Wikipedia","zh":"维基百科阅读最多","es":"Lo más leído en Wikipedia","hi":"विकिपीडिया पर सबसे ज़्यादा पढ़ा गया","ar":"الأكثر قراءة على ويكيبيديا"},"yesterday":{"en":"yesterday","zh":"昨天","es":"ayer","hi":"कल","ar":"أمس"},"bets":{"en":"What the world is betting on","zh":"全球在押注什么","es":"En qué apuesta el mundo","hi":"दुनिया किस पर दांव लगा रही है","ar":"على ماذا يراهن العالم"},"Yes":{"en":"Yes","zh":"是","es":"Sí","hi":"हाँ","ar":"نعم"},"footer":{"en":"Headlines link to their publishers · market widgets by TradingView · app charts (Apple & Google, US), Wikipedia, prediction markets · news and odds refresh every 30 seconds, app charts hourly · non-English versions translated by AI","zh":"标题链接至原始媒体 · 市场组件由TradingView提供 · 应用榜单（Apple和Google，美国）、维基百科、预测市场 · 新闻和赔率每30秒更新，应用榜单每小时更新 · 非英文版本由AI翻译","es":"Los titulares enlazan a sus medios · widgets de mercado de TradingView · rankings de apps (Apple y Google, EE. UU.), Wikipedia, mercados de predicción · noticias y probabilidades cada 30 segundos, apps cada hora · versiones en otros idiomas traducidas por IA","hi":"सुर्खियाँ मूल प्रकाशकों से जुड़ी हैं · बाज़ार विजेट TradingView द्वारा · ऐप चार्ट (Apple और Google, अमेरिका), विकिपीडिया, प्रेडिक्शन मार्केट · खबरें और दांव हर 30 सेकंड में, ऐप चार्ट हर घंटे अपडेट · गैर-अंग्रेज़ी संस्करण AI द्वारा अनूदित","ar":"العناوين ترتبط بناشريها الأصليين · أدوات السوق من TradingView · تصنيفات التطبيقات (Apple وGoogle، الولايات المتحدة)، ويكيبيديا، أسواق التوقعات · الأخبار والاحتمالات تتحدث كل 30 ثانية والتطبيقات كل ساعة · النسخ غير الإنجليزية مترجمة بالذكاء الاصطناعي"},"privacy":{"en":"Privacy","zh":"隐私","es":"Privacidad","hi":"गोपनीयता","ar":"الخصوصية"},"na":{"en":"data unavailable","zh":"数据暂不可用","es":"datos no disponibles","hi":"डेटा उपलब्ध नहीं","ar":"البيانات غير متاحة"},"title":{"en":"nowwhat — What's happening in the world right now","zh":"nowwhat — 此刻世界正在发生什么","es":"nowwhat — Qué está pasando en el mundo ahora mismo","hi":"nowwhat — दुनिया में अभी क्या हो रहा है","ar":"nowwhat — ماذا يحدث في العالم الآن"},"desc":{"en":"The world on one page: the top 5 news stories across 11 outlets, a 2-sentence AI summary, global stock market heatmaps, top apps, Wikipedia trends and prediction-market odds. Updated every 30 seconds in English, Chinese, Spanish, Hindi and Arabic.","zh":"一页看懂全球动态：11家媒体的五大新闻、两句话AI摘要、全球股市热力图、热门应用、维基百科趋势和预测市场赔率。每30秒更新，支持中文、英文、西班牙文、印地文和阿拉伯文。","es":"El mundo en una sola página: las 5 noticias principales de 11 medios, un resumen de 2 frases hecho por IA, mapas de calor de bolsas mundiales, apps más populares, tendencias de Wikipedia y probabilidades de mercados de predicción. Se actualiza cada 30 segundos en 5 idiomas.","hi":"एक पेज पर पूरी दुनिया: 11 मीडिया संस्थानों की शीर्ष 5 खबरें, AI द्वारा दो वाक्यों में सारांश, वैश्विक शेयर बाज़ार हीटमैप, शीर्ष ऐप्स, विकिपीडिया ट्रेंड और प्रेडिक्शन मार्केट। हर 30 सेकंड में 5 भाषाओं में अपडेट।","ar":"العالم في صفحة واحدة: أهم 5 أخبار من 11 وسيلة إعلامية، وملخص من جملتين بالذكاء الاصطناعي، وخرائط حرارية للأسواق العالمية، وأشهر التطبيقات، واتجاهات ويكيبيديا، واحتمالات أسواق التوقعات. تحديث كل 30 ثانية بخمس لغات."},"dayTitle":{"en":"What happened in the world on {date}","zh":"{date}世界发生了什么","es":"Qué pasó en el mundo el {date}","hi":"{date} को दुनिया में क्या हुआ","ar":"ماذا حدث في العالم يوم {date}"},"dayLead":{"en":"Summary of the day","zh":"当日摘要","es":"Resumen del día","hi":"दिन का सारांश","ar":"ملخص اليوم"},"dayStories":{"en":"The day's biggest stories","zh":"当日最重要的新闻","es":"Las noticias más importantes del día","hi":"दिन की सबसे बड़ी खबरें","ar":"أبرز أخبار اليوم"},"dayThrough":{"en":"How the day unfolded","zh":"当日进展","es":"Cómo transcurrió el día","hi":"दिन भर में क्या हुआ","ar":"كيف تطور اليوم"},"archive":{"en":"Daily archive","zh":"每日存档","es":"Archivo diario","hi":"दैनिक संग्रह","ar":"الأرشيف اليومي"},"archiveDesc":{"en":"Every day's top world news stories and an AI-written summary, from nowwhat.today.","zh":"nowwhat.today 每日全球要闻与AI摘要存档。","es":"Las noticias mundiales más importantes de cada día y un resumen escrito por IA, de nowwhat.today.","hi":"nowwhat.today से हर दिन की प्रमुख विश्व खबरें और AI द्वारा लिखा सारांश।","ar":"أهم الأخبار العالمية لكل يوم مع ملخص بالذكاء الاصطناعي من nowwhat.today."},"outlets":{"en":"outlets","zh":"家媒体","es":"medios","hi":"मीडिया","ar":"وسائل إعلام"},"prev":{"en":"Previous day","zh":"前一天","es":"Día anterior","hi":"पिछला दिन","ar":"اليوم السابق"},"next":{"en":"Next day","zh":"后一天","es":"Día siguiente","hi":"अगला दिन","ar":"اليوم التالي"},"live":{"en":"Live now","zh":"实时","es":"En vivo","hi":"अभी लाइव","ar":"مباشر الآن"},"about":{"en":"About & FAQ","zh":"关于与常见问题","es":"Acerca de y preguntas","hi":"परिचय और सवाल","ar":"حول الموقع والأسئلة"},"notFound":{"en":"No archive for this day yet.","zh":"暂无该日存档。","es":"Aún no hay archivo para este día.","hi":"इस दिन का संग्रह अभी उपलब्ध नहीं है।","ar":"لا يوجد أرشيف لهذا اليوم بعد."}}</script>
 </head>
 <body>
 <header><div class="logo" dir="ltr">now<b>what?</b></div><div class="mut"><span class="dot" id="dot" hidden></span><span data-t="tagline">the world, right now</span> · <span data-t="updated">updated</span> <span id="upd">…</span></div><nav class="langs" id="langs" aria-label="Language"></nav></header>
@@ -73,8 +79,8 @@ footer{margin-top:16px}
   <section class="card s4"><h2><span data-t="wiki">Most-read on Wikipedia</span> <span data-t="yesterday">yesterday</span></h2><ul class="list" id="wiki"></ul></section>
   <section class="card s4"><h2><span data-t="bets">What the world is betting on</span></h2><ul class="list" id="bets"></ul></section>
 </div>
-<footer class="mut"><span data-t="footer">Headlines link to their publishers · market widgets by TradingView · app charts (Apple &amp; Google, US), Wikipedia, prediction markets · news and odds refresh every 30 seconds, app charts hourly · non-English versions translated by AI</span> · <a href="privacy.html" data-t="privacy">Privacy</a></footer>
-<script src="config.js"></script>
+<footer class="mut"><span data-t="footer">Headlines link to their publishers · market widgets by TradingView · app charts (Apple &amp; Google, US), Wikipedia, prediction markets · news and odds refresh every 30 seconds, app charts hourly · non-English versions translated by AI</span> ·  <a href="/day/" id="archlink" data-t="archive">Daily archive</a> · <a href="/about" data-t="about">About &amp; FAQ</a> · <a href="/privacy" data-t="privacy">Privacy</a></footer>
+<script src="/config.js"></script>
 <script>
 const $=id=>document.getElementById(id),esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const sign=v=>(v>=0?'+':'')+(+v).toFixed(2)+'%',pct=v=>`<span class="${v>=0?'up':'dn'}">${sign(v)}</span>`;
@@ -85,44 +91,19 @@ let D,appTab;
 const LANGS={en:'English',zh:'中文',es:'Español',hi:'हिन्दी',ar:'العربية'};
 const LOCALE={en:'en-US',zh:'zh-CN',es:'es',hi:'hi-IN',ar:'ar'};
 const TVLOC={en:'en',zh:'zh_CN',es:'es',hi:'en',ar:'ar_AE'}; // TradingView has no Hindi widgets
-const T={
- tagline:{en:'the world, right now',zh:'世界，此刻',es:'el mundo, ahora mismo',hi:'दुनिया, अभी',ar:'العالم، الآن'},
- updated:{en:'updated',zh:'更新于',es:'actualizado',hi:'अपडेट',ar:'تم التحديث'},
- hero:{en:'The day in 2 sentences · AI-written from the stories below',zh:'两句话看今天 · 由AI根据下方新闻撰写',es:'El día en 2 frases · escrito por IA a partir de las noticias de abajo',hi:'दो वाक्यों में आज का दिन · नीचे की खबरों से AI द्वारा लिखा गया',ar:'اليوم في جملتين · كتبه الذكاء الاصطناعي من الأخبار أدناه'},
- ad:{en:'Advertisement',zh:'广告',es:'Publicidad',hi:'विज्ञापन',ar:'إعلان'},
- top5:{en:'Top 5 stories',zh:'五大新闻',es:'5 noticias principales',hi:'शीर्ष 5 खबरें',ar:'أهم 5 أخبار'},
- bycov:{en:'by cross-outlet coverage',zh:'按媒体报道数量排序',es:'según cobertura entre medios',hi:'मीडिया कवरेज के अनुसार',ar:'حسب التغطية الإعلامية'},
- also:{en:'also',zh:'另见',es:'también',hi:'इसके अलावा',ar:'أيضًا'},
- map:{en:'Market map',zh:'市场热力图',es:'Mapa del mercado',hi:'बाज़ार मानचित्र',ar:'خريطة السوق'},
- US:{en:'US',zh:'美国',es:'EE. UU.',hi:'अमेरिका',ar:'أمريكا'},
- 'China/HK':{en:'China/HK',zh:'中国/香港',es:'China/HK',hi:'चीन/हांगकांग',ar:'الصين/هونغ كونغ'},
- Germany:{en:'Germany',zh:'德国',es:'Alemania',hi:'जर्मनी',ar:'ألمانيا'},
- mnote:{en:'Size = market cap · color = % change today · data by TradingView (delayed) · Japan: Nikkei 225 in the ticker above',zh:'面积 = 市值 · 颜色 = 今日涨跌幅 · 数据来自TradingView（延迟）· 日本：见上方行情条中的日经225',es:'Tamaño = capitalización · color = % de cambio hoy · datos de TradingView (con retraso) · Japón: Nikkei 225 en la cinta superior',hi:'आकार = बाज़ार पूंजीकरण · रंग = आज का % बदलाव · डेटा TradingView से (विलंबित) · जापान: ऊपर टिकर में निक्केई 225',ar:'الحجم = القيمة السوقية · اللون = نسبة التغير اليوم · البيانات من TradingView (متأخرة) · اليابان: مؤشر نيكي 225 في الشريط أعلاه'},
- apps:{en:'Top apps · iPhone + Android',zh:'热门应用 · iPhone + Android',es:'Apps más populares · iPhone + Android',hi:'शीर्ष ऐप्स · iPhone + Android',ar:'أشهر التطبيقات · iPhone + Android'},
- grossing:{en:'grossing',zh:'畅销',es:'más ingresos',hi:'सबसे ज़्यादा कमाई',ar:'الأعلى ربحًا'},
- free:{en:'free',zh:'免费',es:'gratis',hi:'मुफ़्त',ar:'مجانية'},
- wiki:{en:'Most-read on Wikipedia',zh:'维基百科阅读最多',es:'Lo más leído en Wikipedia',hi:'विकिपीडिया पर सबसे ज़्यादा पढ़ा गया',ar:'الأكثر قراءة على ويكيبيديا'},
- yesterday:{en:'yesterday',zh:'昨天',es:'ayer',hi:'कल',ar:'أمس'},
- bets:{en:'What the world is betting on',zh:'全球在押注什么',es:'En qué apuesta el mundo',hi:'दुनिया किस पर दांव लगा रही है',ar:'على ماذا يراهن العالم'},
- Yes:{en:'Yes',zh:'是',es:'Sí',hi:'हाँ',ar:'نعم'},
- footer:{en:'Headlines link to their publishers · market widgets by TradingView · app charts (Apple & Google, US), Wikipedia, prediction markets · news and odds refresh every 30 seconds, app charts hourly · non-English versions translated by AI',
-  zh:'标题链接至原始媒体 · 市场组件由TradingView提供 · 应用榜单（Apple和Google，美国）、维基百科、预测市场 · 新闻和赔率每30秒更新，应用榜单每小时更新 · 非英文版本由AI翻译',
-  es:'Los titulares enlazan a sus medios · widgets de mercado de TradingView · rankings de apps (Apple y Google, EE. UU.), Wikipedia, mercados de predicción · noticias y probabilidades cada 30 segundos, apps cada hora · versiones en otros idiomas traducidas por IA',
-  hi:'सुर्खियाँ मूल प्रकाशकों से जुड़ी हैं · बाज़ार विजेट TradingView द्वारा · ऐप चार्ट (Apple और Google, अमेरिका), विकिपीडिया, प्रेडिक्शन मार्केट · खबरें और दांव हर 30 सेकंड में, ऐप चार्ट हर घंटे अपडेट · गैर-अंग्रेज़ी संस्करण AI द्वारा अनूदित',
-  ar:'العناوين ترتبط بناشريها الأصليين · أدوات السوق من TradingView · تصنيفات التطبيقات (Apple وGoogle، الولايات المتحدة)، ويكيبيديا، أسواق التوقعات · الأخبار والاحتمالات تتحدث كل 30 ثانية والتطبيقات كل ساعة · النسخ غير الإنجليزية مترجمة بالذكاء الاصطناعي'},
- privacy:{en:'Privacy',zh:'隐私',es:'Privacidad',hi:'गोपनीयता',ar:'الخصوصية'},
- na:{en:'data unavailable',zh:'数据暂不可用',es:'datos no disponibles',hi:'डेटा उपलब्ध नहीं',ar:'البيانات غير متاحة'},
-};
+const T=JSON.parse($('i18n').textContent);
 const AGO={en:[s=>s+'s ago',m=>m+' min ago'],zh:[s=>s+'秒前',m=>m+'分钟前'],es:[s=>'hace '+s+' s',m=>'hace '+m+' min'],hi:[s=>s+' सेकंड पहले',m=>m+' मिनट पहले'],ar:[s=>'قبل '+s+' ث',m=>'قبل '+m+' د']};
 let lang='en';
-try{const q=new URLSearchParams(location.search).get('lang'),st=localStorage.getItem('nw-lang'),nav=(navigator.languages||[]).map(x=>x.slice(0,2)).find(x=>LANGS[x]);
-  lang=[q,st,nav].find(x=>x&&LANGS[x])||'en'}catch(e){}
+{const pl=location.pathname.split('/')[1];lang=window.__LANG__||(LANGS[pl]?pl:'en');
+  try{const st=localStorage.getItem('nw-lang');if(lang==='en'&&location.pathname==='/'&&st&&st!=='en'&&LANGS[st])location.replace('/'+st+'/')}catch(e){}}
+const PRE=lang==='en'?'':'/'+lang;
 const t=k=>(T[k]&&(T[k][lang]||T[k].en))||k;
 const tr=(obj,en)=>(lang!=='en'&&obj&&obj[lang])||en; // translated text if we have it, else original
-function setLang(l){try{localStorage.setItem('nw-lang',l)}catch(e){}const u=new URL(location.href);u.searchParams.set('lang',l);location.href=u} // reload so the TradingView widgets switch too
+function setLang(l){try{localStorage.setItem('nw-lang',l)}catch(e){}} // reload so the TradingView widgets switch too
 function applyLang(){document.documentElement.lang=lang;document.documentElement.dir=lang==='ar'?'rtl':'ltr';
   document.querySelectorAll('[data-t]').forEach(el=>el.textContent=t(el.dataset.t));
-  $('langs').innerHTML=Object.entries(LANGS).map(([k,n])=>`<button class="${k===lang?'on':''}" lang="${k}" onclick="setLang('${k}')">${n}</button>`).join('');
+  $('langs').innerHTML=Object.entries(LANGS).map(([k,n])=>`<a class="${k===lang?'on':''}" lang="${k}" hreflang="${k}" href="${k==='en'?'/':'/'+k+'/'}" onclick="setLang('${k}')">${n}</a>`).join('');
+  const al=$('archlink');if(al)al.href=PRE+'/day/';
   for(const w of ['tv-ticker-tape','tv-heatmap']){const s=document.createElement('script');s.type='module';s.src=`https://widgets.tradingview-widget.com/w/${TVLOC[lang]}/${w}.js`;document.head.appendChild(s)}}
 
 // Market map: TradingView's free heatmap widget (their data, their branding). One map at a time keeps the page light.
@@ -165,7 +146,7 @@ function renderStatic(){D=S;const tr=S.trending||[],mx=Math.max(1,...tr.map(w=>w
   $('wiki').innerHTML=tr.map(w=>`<li><div style="flex:1;min-width:0">${link(w.url,w.title,' style="display:block"')}<div class="bar"><i style="width:${w.views/mx*100}%"></i></div></div><span class="r">${Math.round(w.views/1e3)}k</span></li>`).join('');
   renderApps()}
 
-async function loadStatic(){try{S=window.__DATA__||await(await fetch('data.json?'+Date.now())).json();renderStatic();renderLive()}catch(e){if(!S.updated)$('upd').textContent=t('na')}}
+async function loadStatic(){try{S=window.__DATA__||await(await fetch('/data.json?'+Date.now())).json();renderStatic();renderLive()}catch(e){if(!S.updated)$('upd').textContent=t('na')}}
 async function loadLive(){if(document.hidden)return; // no requests from background tabs
   try{if(window.__LIVE__){L=window.__LIVE__;L.updated=new Date().toISOString()}else{const r=await fetch('/api/live',{cache:'no-store'});if(!r.ok)return;L=await r.json()}renderLive()}catch(e){}}
 

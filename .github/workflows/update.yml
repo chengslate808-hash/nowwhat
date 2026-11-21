@@ -56,3 +56,11 @@ jobs:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      - name: Tell Bing / Yandex / Seznam / Naver the pages changed (IndexNow)
+        run: |
+          d=$(date -u +%Y-%m-%d)
+          urls=""
+          for p in "" /zh /es /hi /ar; do urls="$urls\"https://nowwhat.today$p/\",\"https://nowwhat.today$p/day/$d\","; done
+          curl -s -o /dev/null -w "IndexNow: %{http_code}\n" -X POST https://api.indexnow.org/IndexNow \
+            -H "Content-Type: application/json; charset=utf-8" \
+            -d "{\"host\":\"nowwhat.today\",\"key\":\"8900d1b28aca6f38d45560606ffa2b28\",\"keyLocation\":\"https://nowwhat.today/8900d1b28aca6f38d45560606ffa2b28.txt\",\"urlList\":[${urls%,}]}" || true

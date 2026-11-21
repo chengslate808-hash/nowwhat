@@ -1,8 +1,10 @@
 // nowwhat.today live layer.
 // One Durable Object ("Live") re-fetches the fast-moving data every 30 seconds while anyone is on the site:
 //   headlines (11 outlets), prediction markets, BTC/ETH prices, and the AI headline (when the top story changes).
-// Visitors' pages poll GET /api/live every 30s. Everything else is static files (free, not run through this script).
+// Visitors' pages poll GET /api/live every 30s. The Live object also keeps a daily archive (top stories + summaries).
+// Pages are server-rendered for search engines and AI answer engines (see site.js); assets stay static.
 import { DurableObject } from "cloudflare:workers";
+import { LANGS, BASE, pre, renderHome, renderDay, renderDayIndex, renderNotFound, renderSitemap, renderFeed, getTemplate } from "./site.js";
 
 const REFRESH_MS = 30_000;
 const IDLE_STOP_MS = 10 * 60_000;      // nobody visited for 10 min -> stop refreshing until the next visitor
@@ -64,7 +66,10 @@ export class Live extends DurableObject {
     this.lastSeen = Date.now(); // after a restart/deploy, keep refreshing for 10 min before assuming nobody's here
   }
 
-  async fetch() {
+  async fetch(req) {
+    const p = new URL(req.url).pathname;
+    if (p === "/days") return Response.json((await this.ctx.storage.get("days")) || []);
+    if (p.startsWith("/day/")) return Response.json((await this.ctx.storage.get("day:" + p.slice(5))) || null);
     this.lastSeen = Date.now();
     const snap = await this.ctx.storage.get("snap");
     const stale = !snap || Date.now() - Date.parse(snap.updated) > REFRESH_MS * 2;
@@ -117,6 +122,40 @@ export class Live extends DurableObject {
     }
     snap._health = health;
     await this.ctx.storage.put("snap", snap);
+    try { await this.recordDay(snap); } catch (e) { console.log("archive failed:", e.message); }
+  }
+
+  // Daily archive (UTC days): every distinct AI headline + every story that reached the top 5, with its peak coverage.
+  async recordDay(snap) {
+    const d = snap.updated.slice(0, 10);
+    let rec = this.day?.date === d ? this.day : (await this.ctx.storage.get("day:" + d)) || { date: d, summaries: [], stories: {} };
+    let changed = false;
+    const s = snap.summary;
+    const lastS = rec.summaries[rec.summaries.length - 1];
+    if (s?.text && lastS?.text !== s.text) { rec.summaries.push({ text: s.text, tr: s.tr, at: s.at || snap.updated }); rec.summaries = rec.summaries.slice(-30); changed = true; }
+    else if (s?.tr && lastS && !lastS.tr) { lastS.tr = s.tr; changed = true; }
+    for (const h of snap.headlines || []) {
+      const cov = 1 + (h.also?.length || 0), st = rec.stories[h.url];
+      if (!st) { rec.stories[h.url] = { t: h.title, tr: h.tr, src: h.source, cov, first: snap.updated }; changed = true; }
+      else {
+        if (cov > st.cov) { st.cov = cov; changed = true; }
+        if (!st.tr && h.tr) { st.tr = h.tr; changed = true; }
+      }
+    }
+    const keys = Object.keys(rec.stories);
+    if (keys.length > 40) { // keep the 40 most-covered stories of the day
+      const keep = new Set(keys.sort((a, b) => rec.stories[b].cov - rec.stories[a].cov).slice(0, 40));
+      for (const k of keys) if (!keep.has(k)) delete rec.stories[k];
+    }
+    this.day = rec;
+    if (!changed) return;
+    await this.ctx.storage.put("day:" + d, rec);
+    const days = (await this.ctx.storage.get("days")) || [];
+    const last = rec.summaries[rec.summaries.length - 1];
+    const entry = { d, at: snap.updated, s: last ? { text: last.text, tr: last.tr } : null };
+    const i = days.findIndex((x) => x.d === d);
+    if (i >= 0) days[i] = entry; else days.push(entry);
+    await this.ctx.storage.put("days", days.slice(-1000));
   }
 
   async headlines(health) {
@@ -246,22 +285,94 @@ export class Live extends DurableObject {
   }
 }
 
-// ---------- request router (only /api/* reaches this; all other paths are static files) ----------
+// ---------- request router ----------
+// Runs only for paths listed in wrangler.jsonc "run_worker_first"; everything else is served as static files.
+async function cached(ctx, key, ttl, make) {
+  const cache = caches.default;
+  let res = await cache.match(key);
+  if (!res) {
+    res = await make();
+    if (res.status === 200) {
+      res = new Response(res.body, res);
+      res.headers.set("cache-control", `public, max-age=${ttl}`);
+      ctx.waitUntil(cache.put(key, res.clone()));
+    }
+  }
+  return res;
+}
+const liveObj = (env) => env.LIVE.get(env.LIVE.idFromName("global"));
+const liveJSON = async (env, ctx, origin) =>
+  (await cached(ctx, new Request(origin + "/api/live"), 10, async () => {
+    const r = await liveObj(env).fetch("https://live/");
+    return new Response(r.body, { headers: { "content-type": "application/json" } });
+  })).clone().json();
+const html = (body, status = 200, ttl = 300) => new Response(body, { status, headers: { "content-type": "text/html; charset=utf-8", "cache-control": `public, max-age=${ttl}` } });
+
 export default {
   async fetch(req, env, ctx) {
     const url = new URL(req.url);
-    if (url.pathname === "/api/live") {
-      const cache = caches.default;
-      const key = new Request(url.origin + "/api/live");
-      let res = await cache.match(key); // each Cloudflare location asks the Live object at most every ~10s
-      if (!res) {
-        const live = env.LIVE.get(env.LIVE.idFromName("global"));
-        const r = await live.fetch("https://live/");
-        res = new Response(r.body, { headers: { "content-type": "application/json", "cache-control": "public, max-age=10" } });
-        ctx.waitUntil(cache.put(key, res.clone()));
-      }
-      return res;
+    const p = url.pathname;
+    const k = (suffix = "") => new Request(url.origin + p + suffix);
+
+    if (p === "/api/live") {
+      return cached(ctx, new Request(url.origin + "/api/live"), 10, async () => {
+        const r = await liveObj(env).fetch("https://live/");
+        return new Response(r.body, { headers: { "content-type": "application/json", "access-control-allow-origin": "*" } });
+      });
     }
+    if (p === "/sitemap.xml") {
+      return cached(ctx, k(), 600, async () => {
+        const days = await (await liveObj(env).fetch("https://live/days")).json();
+        return new Response(renderSitemap(days), { headers: { "content-type": "application/xml; charset=utf-8" } });
+      });
+    }
+
+    // language prefix: /zh/..., /es/..., /hi/..., /ar/...
+    let lang = "en", rest = p;
+    const m = p.match(/^\/(zh|es|hi|ar)(\/.*)?$/);
+    if (m) {
+      if (!m[2]) return Response.redirect(url.origin + p + "/" + url.search, 301);
+      lang = m[1]; rest = m[2];
+    }
+    const old = url.searchParams.get("lang"); // old ?lang=xx links -> clean language URLs
+    if (rest === "/" && old && LANGS.includes(old)) return Response.redirect(url.origin + pre(old) + "/", 301);
+
+    if (rest === "/" || rest === "/index.html") {
+      return cached(ctx, k(), 30, async () => {
+        const [live, data] = await Promise.all([
+          liveJSON(env, ctx, url.origin).catch(() => ({})),
+          env.ASSETS.fetch(new Request(BASE + "/data.json")).then((r) => r.json()).catch(() => ({})),
+        ]);
+        return renderHome(env, lang, live, data);
+      });
+    }
+    if (rest === "/feed.xml") {
+      return cached(ctx, k(), 600, async () => {
+        await getTemplate(env);
+        const days = await (await liveObj(env).fetch("https://live/days")).json();
+        return new Response(renderFeed(lang, days), { headers: { "content-type": "application/rss+xml; charset=utf-8" } });
+      });
+    }
+    if (rest === "/day" || rest === "/day/") {
+      if (rest === "/day") return Response.redirect(url.origin + pre(lang) + "/day/", 301);
+      return cached(ctx, k(), 300, async () => {
+        await getTemplate(env);
+        return html(renderDayIndex(lang, await (await liveObj(env).fetch("https://live/days")).json()));
+      });
+    }
+    const dm = rest.match(/^\/day\/(\d{4}-\d{2}-\d{2})\/?$/);
+    if (dm) {
+      const today = new Date().toISOString().slice(0, 10);
+      return cached(ctx, k(), dm[1] === today ? 120 : 3600, async () => {
+        await getTemplate(env);
+        const [rec, days] = await Promise.all([
+          liveObj(env).fetch("https://live/day/" + dm[1]).then((r) => r.json()),
+          liveObj(env).fetch("https://live/days").then((r) => r.json()),
+        ]);
+        return rec ? html(renderDay(lang, rec, days)) : html(renderNotFound(lang), 404, 60);
+      });
+    }
+    if (m) return env.ASSETS.fetch(new Request(url.origin + rest, req)); // e.g. /es/privacy.html -> /privacy.html
     return env.ASSETS.fetch(req);
   },
 };

@@ -1,0 +1,23 @@
+# nowwhat
+
+> nowwhat (https://nowwhat.today) is a free one-page overview of what is happening in the world right now, in English, Chinese, Spanish, Hindi and Arabic. It ranks the top 5 world news stories by how many of 11 major outlets cover them, adds a neutral 2-sentence AI summary, and shows global stock market heatmaps, top iPhone/Android apps, most-read Wikipedia articles and prediction-market odds. News, odds and the summary refresh every 30 seconds.
+
+## Pages
+- [Live front page (English)](https://nowwhat.today/): top 5 stories, AI summary of the moment, markets, trends
+- [中文](https://nowwhat.today/zh/) · [Español](https://nowwhat.today/es/) · [हिन्दी](https://nowwhat.today/hi/) · [العربية](https://nowwhat.today/ar/)
+- [Daily archive](https://nowwhat.today/day/): one page per day (UTC) with the day's AI summary and its biggest stories, e.g. https://nowwhat.today/day/2026-11-21
+- [RSS feed of daily summaries](https://nowwhat.today/feed.xml)
+- [About & FAQ](https://nowwhat.today/about)
+
+## Machine-readable data
+- [Live JSON](https://nowwhat.today/api/live): current top stories (with source URLs and outlet counts), AI summary with translations, prediction-market odds. Refreshed every 30 seconds.
+- [Hourly JSON](https://nowwhat.today/data.json): top apps (iPhone + Android), most-read Wikipedia articles.
+
+## How stories are ranked
+Headlines are pulled from the public RSS feeds of BBC, Al Jazeera, The New York Times, The Guardian, NPR, DW, CNBC, France 24, Sky News, CBS and ABC. A story ranks higher the more of these outlets run it at the same time. Every headline links to the original publisher.
+
+## Notes for citing
+- The summary is AI-written (Anthropic Claude) from the headlines only; cite the linked publisher for facts.
+- Non-English text is machine-translated.
+- Market data is provided by TradingView widgets and may be delayed. Nothing here is financial advice.
+- Contact: hello@nowwhat.today
