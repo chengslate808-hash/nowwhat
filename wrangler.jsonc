@@ -14,5 +14,10 @@
     "bindings": [{ "name": "LIVE", "class_name": "Live" }]
   },
   "migrations": [{ "tag": "v1", "new_sqlite_classes": ["Live"] }],
-  "observability": { "enabled": true }
+  "observability": { "enabled": true },
+  "workers_dev": true,
+  "routes": [
+    { "pattern": "nowwhat.today", "custom_domain": true },
+    { "pattern": "www.nowwhat.today", "custom_domain": true }
+  ]
 }
