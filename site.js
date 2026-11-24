@@ -32,6 +32,18 @@ export async function getTemplate(env) {
 }
 const tt = (lang) => (k) => (I18N?.[k] && (I18N[k][lang] || I18N[k].en)) || k;
 
+// ---------- good news + world briefing (shared by home and day pages) ----------
+function goodHtml(lang, g, tag = "a") {
+  return (g?.items || []).map((x) => {
+    const tx = (lang !== "en" && x.tr?.[lang]) || { t: x.title, w: x.why };
+    return `<li><a href="${esc(x.url)}" target="_blank" rel="noopener" dir="auto">${esc(tx.t)}</a><p dir="auto">${esc(tx.w)}</p><small>${esc(x.source)}</small></li>`;
+  }).join("");
+}
+function briefHtml(lang, b, t) {
+  return (b?.items || []).map((x) => `<li><b>${esc(t(x.area))}</b><span dir="auto">${esc(pick(lang, x.tr, x.text))}</span> <span class="src">${(x.links || [])
+    .map((l) => `<a href="${esc(l.url)}" target="_blank" rel="noopener">${esc(l.source)}</a>`).join(" · ")}</span></li>`).join("");
+}
+
 // ---------- home page ----------
 export async function renderHome(env, lang, live, data) {
   const html = await getTemplate(env);
@@ -43,6 +55,7 @@ export async function renderHome(env, lang, live, data) {
   const updated = live.updated || data.updated || new Date().toISOString();
   const a = (u, txt, st = "") => `<a href="${esc(u)}" target="_blank" rel="noopener" dir="auto"${st}>${esc(txt)}</a>`;
 
+  const good = live.good, brief = live.briefing;
   const news = heads.map((h) => `<li><div>${a(h.url, pick(lang, h.tr, h.title))}<div class="mut">${esc(h.source)}${h.also?.length ? " · " + esc(t("also")) + " " + h.also.map(esc).join(", ") : ""}</div></div></li>`).join("");
   const bets = (live.bets || data.bets || []).map((b) => `<li>${a(b.url, b.q, ' style="flex:1"')}<span class="r"><b style="color:var(--tx)">${b.yes}%</b> ${esc(b.outcome === "Yes" ? t("Yes") : b.outcome)}</span></li>`).join("");
   const tr = data.trending || [], mx = Math.max(1, ...tr.map((w) => w.views));
@@ -57,6 +70,8 @@ export async function renderHome(env, lang, live, data) {
     mainEntity: { "@type": "ItemList", name: t("top5"), itemListOrder: "https://schema.org/ItemListOrderDescending",
       numberOfItems: heads.length,
       itemListElement: heads.map((h, i) => ({ "@type": "ListItem", position: i + 1, name: pick(lang, h.tr, h.title), url: h.url })) },
+    ...(good?.items?.length ? { hasPart: [{ "@type": "ItemList", name: t("good"), itemListElement: good.items.map((x, i) => ({
+      "@type": "ListItem", position: i + 1, name: ((lang !== "en" && x.tr?.[lang]) || { t: x.title }).t, url: x.url })) }] } : {}),
   }] };
 
   const head = `<link rel="canonical" href="${url}">${alternates("/")}
@@ -74,7 +89,10 @@ ${ld(graph)}<script>window.__LANG__=${JSON.stringify(lang)}</script>`;
     .on('meta[property="og:description"]', { element: (e) => e.setAttribute("content", sumText || t("desc")) })
     .on("head", { element: (e) => e.append(head, { html: true }) })
     .on("[data-t]", { element: (e) => { const k = e.getAttribute("data-t"); if (I18N?.[k]) e.setInnerContent(t(k)); } })
-    .on("#hero", { element: (e) => { if (sumText) e.removeAttribute("hidden"); } })
+    .on("#hero", { element: (e) => { if (sumText || brief?.items?.length) e.removeAttribute("hidden"); } })
+    .on("#goodcard", { element: (e) => { if (good?.items?.length) e.removeAttribute("hidden"); } })
+    .on("#good", { element: (e) => e.setInnerContent(goodHtml(lang, good), { html: true }) })
+    .on("#brief", { element: (e) => e.setInnerContent(briefHtml(lang, brief, t), { html: true }) })
     .on("#sum", { element: (e) => e.setInnerContent(sumText) })
     .on("#sumat", { element: (e) => sum && e.setInnerContent(t("updated") + " " + fmtTime(lang, sum.at)) })
     .on("#upd", { element: (e) => e.setInnerContent(fmtTime(lang, updated)) })
@@ -95,6 +113,9 @@ a{color:inherit}header{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap
 h1{font-size:clamp(24px,4vw,34px);line-height:1.2;letter-spacing:-.02em;margin-bottom:16px}h2{font-size:13px;text-transform:uppercase;letter-spacing:.08em;color:var(--mut);margin:28px 0 10px}
 .lead{background:var(--card);border:1px solid var(--line);border-inline-start:4px solid var(--acc);border-radius:8px;padding:16px 18px;font-size:19px;font-weight:600;line-height:1.45}
 ol,ul{list-style:none}li{padding:10px 0;border-top:1px solid var(--line)}li:first-child{border:0}.mut{color:var(--mut);font-size:13px}.st a{font-weight:600;text-decoration:none}.st a:hover{text-decoration:underline}
+.good,.brief{list-style:none}.good li,.brief li{padding:10px 0;border-top:1px solid var(--line)}.good li:first-child,.brief li:first-child{border:0}
+.good a{font-weight:650;text-decoration:none}.good p{color:var(--mut);font-size:14px;margin-top:2px}.good small,.brief .src{font-size:12px;color:var(--mut)}
+.brief b{display:block;font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--acc)}.brief .src a{color:var(--mut)}
 nav.pn{display:flex;justify-content:space-between;gap:12px;margin-top:28px;font-size:14px}footer{margin-top:32px;color:var(--mut);font-size:13px}`;
 
 function shell(lang, { title, desc, path, body, graph }) {
@@ -125,6 +146,8 @@ export function renderDay(lang, rec, days) {
   const prev = idx > 0 ? days[idx - 1].d : null, next = idx >= 0 && idx < days.length - 1 ? days[idx + 1].d : null;
   const body = `<main><h1>${esc(title)}</h1>
 ${lead ? `<h2>${esc(t("dayLead"))}</h2><p class="lead" id="lead">${esc(lead)}</p>` : ""}
+${rec.good?.items?.length ? `<h2>☀️ ${esc(t("good"))}</h2><ol class="good">${goodHtml(lang, rec.good)}</ol>` : ""}
+${rec.briefing?.items?.length ? `<h2>${esc(t("briefing"))}</h2><ul class="brief">${briefHtml(lang, rec.briefing, t)}</ul>` : ""}
 <h2>${esc(t("dayStories"))}</h2><ol class="st">${stories.map((s) => `<li><a href="${esc(s.url)}" rel="noopener" dir="auto">${esc(pick(lang, s.tr, s.t))}</a><div class="mut">${esc(s.src)} · ${s.cov} ${esc(t("outlets"))} · ${esc(fmtTime(lang, s.first))}</div></li>`).join("")}</ol>
 ${rec.summaries.length > 1 ? `<h2>${esc(t("dayThrough"))}</h2><ul>${rec.summaries.slice(0, -1).map((x) => `<li><div class="mut">${esc(fmtTime(lang, x.at))}</div>${esc(pick(lang, x.tr, x.text))}</li>`).join("")}</ul>` : ""}
 <nav class="pn"><span>${prev ? `<a href="${pre(lang)}/day/${prev}">← ${esc(t("prev"))}</a>` : ""}</span><span>${next ? `<a href="${pre(lang)}/day/${next}">${esc(t("next"))} →</a>` : ""}</span></nav></main>`;
