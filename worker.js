@@ -42,6 +42,11 @@ const BRIEF_EVERY_MS = 60 * 60_000;      // world briefing: at least hourly...
 const BRIEF_MIN_GAP_MS = 20 * 60_000;    // ...or when the top story changes, but not more than every 20 min
 const AREAS = ["Americas", "Europe", "Middle East & Africa", "Asia-Pacific", "Business & Markets", "Science & Tech"];
 const LANGS_TX = ["zh", "es", "hi", "ar"];
+// Catch model glitches like "women权利", "ترامp" or Cyrillic inside Arabic; a rejected translation falls back to English.
+const SCRIPT = "\u0600-\u06FF\u0900-\u097F\u3040-\u30FF\u4E00-\u9FFF";
+const GLITCH = new RegExp(`[\u0400-\u04FF]|(^|[^A-Za-z])[a-z]+(?=[${SCRIPT}])|[${SCRIPT}][a-z]`);
+const okTx = (l, v) => typeof v === "string" && !!v.trim() && !(l === "es" ? /[\u0400-\u04FF\u4E00-\u9FFF]/.test(v) : GLITCH.test(v));
+const cleanTx = (o) => Object.fromEntries(LANGS_TX.filter((l) => okTx(l, o?.[l])).map((l) => [l, o[l]]));
 const STOP = new Set(`about after again against also amid among another back been before being between both could
 during each from have here into just last like made make many more most much must news only other over said
 says since some still such than that their them then there these they this those through under until very want
@@ -283,7 +288,7 @@ export class Live extends DurableObject {
     const arr = JSON.parse(text.slice(text.indexOf("["), text.lastIndexOf("]") + 1));
     const items = arr.filter((x) => cands[x.i] && x.en?.t).slice(0, 5).map((x) => ({
       title: x.en.t, why: x.en.w, url: cands[x.i].link, source: cands[x.i].src,
-      tr: Object.fromEntries(LANGS_TX.filter((l) => x[l]?.t).map((l) => [l, { t: x[l].t, w: x[l].w }])),
+      tr: Object.fromEntries(LANGS_TX.filter((l) => okTx(l, x[l]?.t) && okTx(l, x[l]?.w)).map((l) => [l, { t: x[l].t, w: x[l].w }])),
     }));
     if (items.length < 3) throw new Error("good news: model returned too few items");
     this.goodNote = `picked ${items.length} of ${cands.length} from ${working} feeds, out=${j.usage?.output_tokens}`;
@@ -309,7 +314,7 @@ export class Live extends DurableObject {
     const arr = JSON.parse(text.slice(text.indexOf("["), text.lastIndexOf("]") + 1));
     const items = arr.filter((x) => AREAS.includes(x.area) && x.en).map((x) => ({
       area: x.area, text: x.en,
-      tr: Object.fromEntries(LANGS_TX.filter((l) => x[l]).map((l) => [l, x[l]])),
+      tr: cleanTx(x),
       links: [...new Set((x.refs || []).filter((n) => this.all[n]))].slice(0, 3).map((n) => ({ url: this.all[n].u, source: this.all[n].s })),
     }));
     if (items.length < 3) throw new Error("briefing: model returned too few items");
@@ -336,7 +341,10 @@ export class Live extends DurableObject {
   }
 
   async translate(texts) {
-    if (!this.tx) this.tx = (await this.ctx.storage.get("tx")) || {};
+    if (!this.tx) {
+      this.tx = (await this.ctx.storage.get("tx")) || {};
+      for (const k in this.tx) this.tx[k] = cleanTx(this.tx[k]); // scrub glitches cached before the check existed
+    }
     const out = {};
     const missing = [];
     for (const t of texts) (this.tx[t] ? (out[t] = this.tx[t]) : missing.push(t));
@@ -353,7 +361,7 @@ export class Live extends DurableObject {
       `<data>\n${JSON.stringify(batch)}\n</data>`, 4000);
     const arr = JSON.parse(text.slice(text.indexOf("["), text.lastIndexOf("]") + 1));
     if (!Array.isArray(arr) || arr.length !== batch.length) throw new Error(`translation count mismatch (${arr?.length} vs ${batch.length})`);
-    batch.forEach((t, i) => { const o = arr[i] || {}; if (o.zh && o.es && o.hi && o.ar) this.tx[t] = { zh: o.zh, es: o.es, hi: o.hi, ar: o.ar }; });
+    batch.forEach((t, i) => { const c = cleanTx(arr[i]); if (Object.keys(c).length) this.tx[t] = c; });
     const keys = Object.keys(this.tx);
     for (const k of keys.slice(0, Math.max(0, keys.length - TX_KEEP))) delete this.tx[k];
     await this.ctx.storage.put("tx", this.tx);
