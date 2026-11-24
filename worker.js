@@ -410,6 +410,36 @@ const liveJSON = async (env, ctx, origin) =>
     const r = await liveObj(env).fetch("https://live/");
     return new Response(r.body, { headers: { "content-type": "application/json" } });
   })).clone().json();
+// ---------- local weather: Cloudflare's approximate IP location (no browser prompt) + MET Norway forecast (free, CC BY 4.0) ----------
+const WX_ICON = (s = "") =>
+  /thunder/.test(s) ? "⛈️" : /snow|sleet/.test(s) ? "🌨️" : /showers/.test(s) ? "🌦️" : /rain/.test(s) ? "🌧️" : /fog/.test(s) ? "🌫️" :
+  s === "cloudy" ? "☁️" : /partlycloudy/.test(s) ? "⛅" : /night/.test(s) ? "🌙" : /fair/.test(s) ? "🌤️" : "☀️";
+async function weather(req, ctx) {
+  const cf = req.cf || {};
+  const lat = Number(cf.latitude), lon = Number(cf.longitude);
+  const priv = (body, status = 200) => new Response(JSON.stringify(body), { status,
+    headers: { "content-type": "application/json", "cache-control": status === 200 ? "private, max-age=900" : "no-store" } });
+  if (!Number.isFinite(lat) || !Number.isFinite(lon)) return priv({ error: "no location" }, 404);
+  const rl = lat.toFixed(1), ro = lon.toFixed(1); // ~10 km grid: shared cache per area, nothing precise stored
+  const fc = await cached(ctx, new Request(`https://wx.internal/${rl}/${ro}`), 1800, async () => {
+    const r = await fetch(`https://api.met.no/weatherapi/locationforecast/2.0/compact?lat=${rl}&lon=${ro}`,
+      { headers: { "user-agent": "nowwhat.today/1.0 hello@nowwhat.today" }, signal: AbortSignal.timeout(8000) });
+    if (!r.ok) return new Response("", { status: 502 });
+    const ts = (await r.json()).properties?.timeseries || [];
+    if (!ts.length) return new Response("", { status: 502 });
+    const day = ts.filter((t) => Date.parse(t.time) < Date.now() + 24 * 3600e3).map((t) => t.data.instant.details.air_temperature);
+    const now = ts[0].data;
+    const sym = now.next_1_hours?.summary?.symbol_code || now.next_6_hours?.summary?.symbol_code || "";
+    return new Response(JSON.stringify({ c: now.instant.details.air_temperature, hi: Math.max(...day), lo: Math.min(...day), sym }),
+      { headers: { "content-type": "application/json" } });
+  });
+  if (fc.status !== 200) return priv({ error: "forecast unavailable" }, 502);
+  const w = await fc.clone().json();
+  const f = ["US", "LR", "MM", "PR", "GU", "BS", "KY", "PW", "FM", "MH"].includes(cf.country);
+  const u = (c) => Math.round(f ? c * 9 / 5 + 32 : c);
+  return priv({ city: cf.city || cf.region || cf.country || "", unit: f ? "F" : "C", temp: u(w.c), hi: u(w.hi), lo: u(w.lo), icon: WX_ICON(w.sym), sym: w.sym });
+}
+
 const html = (body, status = 200, ttl = 300) => new Response(body, { status, headers: { "content-type": "text/html; charset=utf-8", "cache-control": `public, max-age=${ttl}` } });
 
 export default {
@@ -418,6 +448,7 @@ export default {
     const p = url.pathname;
     const k = (suffix = "") => new Request(url.origin + p + suffix);
 
+    if (p === "/api/weather") return weather(req, ctx).catch(() => new Response('{"error":"weather failed"}', { status: 502, headers: { "content-type": "application/json", "cache-control": "no-store" } }));
     if (p === "/api/live") {
       return cached(ctx, new Request(url.origin + "/api/live"), 10, async () => {
         const r = await liveObj(env).fetch("https://live/");
