@@ -79,7 +79,7 @@ footer{margin-top:16px}
 </head>
 <body>
 <header><div class="logo" dir="ltr">now<b>what?</b></div><div class="mut"><span class="dot" id="dot" hidden></span><span data-t="tagline">the world, right now</span> · <span data-t="updated">updated</span> <span id="upd">…</span></div><nav class="langs" id="langs" aria-label="Language"></nav></header>
-<section id="hero" hidden><h2><span data-t="briefing">World briefing</span></h2><p id="sum"></p><ul class="brief" id="brief"></ul><span class="mut"><span data-t="hero">AI-written from the stories below</span> · <span id="sumat"></span></span></section>
+<section id="hero" hidden><h2><span data-t="briefing">World briefing</span></h2><p id="sum"></p><span class="mut"><span data-t="hero">AI-written from the stories below</span> · <span id="sumat"></span></span></section>
 <tv-ticker-tape id="tape" theme="dark" transparent symbols="FOREXCOM:SPXUSD,FOREXCOM:NSXUSD,FOREXCOM:DJI,OANDA:JP225USD,OANDA:DE30EUR,OANDA:HK33HKD,OANDA:CN50USD,TVC:US10Y,OANDA:XAUUSD,TVC:USOIL,BITSTAMP:BTCUSD,BITSTAMP:ETHUSD"></tv-ticker-tape>
 <div class="ad" id="ad-top"><small data-t="ad">Advertisement</small></div>
 <div class="grid">
@@ -156,7 +156,7 @@ function renderLive(){const v=view();
   $('news').innerHTML=hs.map(h=>`<li class="${seen&&!seen.has(h.url)?'new':''}"><div>${link(h.url,tr(h.tr,h.title))}<div class="mut">${esc(h.source)}${h.also.length?' · '+t('also')+' '+h.also.map(esc).join(', '):''}</div></div></li>`).join('');
   seen=new Set(hs.map(h=>h.url));
   $('bets').innerHTML=(v.bets||[]).map(b=>`<li>${link(b.url,b.q,' style="flex:1"')}<span class="r"><b style="color:var(--tx)">${b.yes}%</b> ${esc(b.outcome==='Yes'?t('Yes'):b.outcome)}</span></li>`).join('');
-  renderSummary(v.summary);renderGood(v.good);renderBrief(v.briefing);tick()}
+  renderSummary(v.summary);renderGood(v.good);tick()}
 
 function renderStatic(){D=S;const tr=S.trending||[],mx=Math.max(1,...tr.map(w=>w.views));
   $('wiki').innerHTML=tr.map(w=>`<li><div style="flex:1;min-width:0">${link(w.url,w.title,' style="display:block"')}<div class="bar"><i style="width:${w.views/mx*100}%"></i></div></div><span class="r">${Math.round(w.views/1e3)}k</span></li>`).join('');

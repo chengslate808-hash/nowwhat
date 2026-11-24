@@ -131,7 +131,7 @@ export class Live extends DurableObject {
       health.summary = { ok: false, error: String(e.message).slice(0, 300) };
     }
     // good news (hourly) and world briefing (hourly or when the top story changes); both translated in the same AI call
-    for (const [name, fn] of [["good", () => this.goodNews(old.good)], ["briefing", () => this.briefing(old.briefing, snap)]]) {
+    for (const [name, fn] of [["good", () => this.goodNews(old.good)]]) { // region briefing lines retired Nov 2026: summary only
       try {
         snap[name] = await fn();
         health[name] = { ok: !!snap[name], fails: 0, note: this[name + "Note"] || null };
@@ -176,7 +176,6 @@ export class Live extends DurableObject {
       }
     }
     if (snap.good?.at && rec.good?.at !== snap.good.at) { rec.good = snap.good; changed = true; }
-    if (snap.briefing?.at && rec.briefing?.at !== snap.briefing.at) { rec.briefing = snap.briefing; changed = true; }
     const keys = Object.keys(rec.stories);
     if (keys.length > 40) { // keep the 40 most-covered stories of the day
       const keep = new Set(keys.sort((a, b) => rec.stories[b].cov - rec.stories[a].cov).slice(0, 40));

@@ -55,7 +55,7 @@ export async function renderHome(env, lang, live, data) {
   const updated = live.updated || data.updated || new Date().toISOString();
   const a = (u, txt, st = "") => `<a href="${esc(u)}" target="_blank" rel="noopener" dir="auto"${st}>${esc(txt)}</a>`;
 
-  const good = live.good, brief = live.briefing;
+  const good = live.good, brief = null;
   const news = heads.map((h) => `<li><div>${a(h.url, pick(lang, h.tr, h.title))}<div class="mut">${esc(h.source)}${h.also?.length ? " · " + esc(t("also")) + " " + h.also.map(esc).join(", ") : ""}</div></div></li>`).join("");
   const bets = (live.bets || data.bets || []).map((b) => `<li>${a(b.url, b.q, ' style="flex:1"')}<span class="r"><b style="color:var(--tx)">${b.yes}%</b> ${esc(b.outcome === "Yes" ? t("Yes") : b.outcome)}</span></li>`).join("");
   const tr = data.trending || [], mx = Math.max(1, ...tr.map((w) => w.views));
@@ -92,7 +92,6 @@ ${ld(graph)}<script>window.__LANG__=${JSON.stringify(lang)}</script>`;
     .on("#hero", { element: (e) => { if (sumText || brief?.items?.length) e.removeAttribute("hidden"); } })
     .on("#goodcard", { element: (e) => { if (good?.items?.length) e.removeAttribute("hidden"); } })
     .on("#good", { element: (e) => e.setInnerContent(goodHtml(lang, good), { html: true }) })
-    .on("#brief", { element: (e) => e.setInnerContent(briefHtml(lang, brief, t), { html: true }) })
     .on("#sum", { element: (e) => e.setInnerContent(sumText) })
     .on("#sumat", { element: (e) => sum && e.setInnerContent(t("updated") + " " + fmtTime(lang, sum.at)) })
     .on("#upd", { element: (e) => e.setInnerContent(fmtTime(lang, updated)) })
@@ -146,7 +145,6 @@ export function renderDay(lang, rec, days) {
   const prev = idx > 0 ? days[idx - 1].d : null, next = idx >= 0 && idx < days.length - 1 ? days[idx + 1].d : null;
   const body = `<main><h1>${esc(title)}</h1>
 ${lead ? `<h2>${esc(t("dayLead"))}</h2><p class="lead" id="lead">${esc(lead)}</p>` : ""}
-${rec.briefing?.items?.length ? `<h2>${esc(t("briefing"))}</h2><ul class="brief">${briefHtml(lang, rec.briefing, t)}</ul>` : ""}
 ${rec.good?.items?.length ? `<h2>☀️ ${esc(t("good"))}</h2><ol class="good">${goodHtml(lang, rec.good)}</ol>` : ""}
 <h2>${esc(t("dayStories"))}</h2><ol class="st">${stories.map((s) => `<li><a href="${esc(s.url)}" rel="noopener" dir="auto">${esc(pick(lang, s.tr, s.t))}</a><div class="mut">${esc(s.src)} · ${s.cov} ${esc(t("outlets"))} · ${esc(fmtTime(lang, s.first))}</div></li>`).join("")}</ol>
 ${rec.summaries.length > 1 ? `<h2>${esc(t("dayThrough"))}</h2><ul>${rec.summaries.slice(0, -1).map((x) => `<li><div class="mut">${esc(fmtTime(lang, x.at))}</div>${esc(pick(lang, x.tr, x.text))}</li>`).join("")}</ul>` : ""}
